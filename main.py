@@ -5,6 +5,7 @@ import os
 
 import mariadb
 
+# REVIEWS --------------------------
 def add_review(cur):
     review_id = get_id("Enter review ID: ", "review", None, None, cur)
     comment = get_input("Enter comment: ", "string", 1, 250, None, None)
@@ -53,7 +54,7 @@ def view_review(cur):
     else:
         print("No reviews found")
 
-
+# NOT YET IMPLEMENTED
 def view_reviews_within_month():
     choice = get_input("Enter 'e' to view reviews for an establishment or 'f' to view reviews for a food item: ")
     if choice == 'e':
@@ -76,15 +77,29 @@ def view_reviews_within_month():
     else:
         print("No reviews found for this month")
 
-def update_review():
-    review_id = int(get_input("Enter review ID: "))
-    rating = int(get_input("Enter new rating (1-5): "))
-    query = "UPDATE REVIEW SET rating = %s WHERE review_id = %s"
-    values = (rating, review_id)
+def update_review(cur):
+    review_id = int(get_input("Enter review ID: ", "int", 1, 999, None, None))
+    rating = int(get_input("Enter new rating (1-5): ", "int", 1, 5, None, None))
+    comment = get_input("Enter new comment: ", "string", 1, 250, None, None)
+    content = get_input("Enter new content: ", "string", 1, 1000, None, None)
+    service = int(get_input("Enter new service rating (1-5): ", "int", 1, 5, None, None))
+    ambience = int(get_input("Enter new ambience rating (1-5): ", "int", 1, 5, None, None))
+    cleanliness = int(get_input("Enter new cleanliness rating (1-5): ", "int", 1, 5, None, None))
+    taste = int(get_input("Enter new taste rating (1-5): ", "int", 1, 5, None, None))
+    texture = int(get_input("Enter new texture rating (1-5): ", "int", 1, 5, None, None))
+    plating = int(get_input("Enter new plating rating (1-5): ", "int", 1, 5, None, None))
+    classification = get_input("Enter new classification: ", "string", 1, 100, None, None)
+    user_id = int(get_input("Enter new user ID: ", "int", 1, 999, None, None))
+    establishment_id = int(get_input("Enter new establishment ID (or 0 if reviewing a food item): ", "int", 0, 999, None, None))
+    food_id = int(get_input("Enter new food ID (or 0 if reviewing an establishment): ", "int", 0, 999, None, None))
+
+    query = "UPDATE REVIEW SET rating = %s, comment = %s, content = %s, service = %s, ambience = %s, cleanliness = %s, taste = %s, texture = %s, plating = %s, classification = %s, user_id = %s, establishment_id = %s, food_id = %s WHERE review_id = %s"
+    values = (rating, comment, content, service, ambience, cleanliness, taste, texture, plating, classification, user_id, establishment_id, food_id, review_id)
     cur.execute(query, values)
 
-def delete_review():
-    review_id = int(get_input("Enter review ID: "))
+
+def delete_review(cur):
+    review_id = int(get_input("Enter review ID: ", "int", 1, 999, None, None))
     query = "DELETE FROM REVIEW WHERE review_id = %s"
     cur.execute(query, (review_id,))
 
