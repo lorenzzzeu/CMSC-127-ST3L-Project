@@ -47,14 +47,14 @@ CREATE TABLE IF NOT EXISTS FOOD_ESTABLISHMENT_CONTACT (
     establishment_contact_id INT AUTO_INCREMENT PRIMARY KEY,
     establishment_id INT,
     establishment_contact_number VARCHAR(20),
-    CONSTRAINT FoodEstablishmentContact_EstablishmentId_fk FOREIGN KEY (establishment_id) REFERENCES FOOD_ESTABLISHMENT(establishment_id)
+    CONSTRAINT FoodEstablishmentContact_EstablishmentId_fk FOREIGN KEY (establishment_id) REFERENCES FOOD_ESTABLISHMENT(establishment_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS FOOD_ESTABLISHMENT_SOCIAL (
     establishment_social_id INT AUTO_INCREMENT PRIMARY KEY,
     establishment_id INT,
     social_media_link VARCHAR(250),
-    CONSTRAINT FoodEstablishmentSocial_EstablishmentId_fk FOREIGN KEY (establishment_id) REFERENCES FOOD_ESTABLISHMENT(establishment_id)
+    CONSTRAINT FoodEstablishmentSocial_EstablishmentId_fk FOREIGN KEY (establishment_id) REFERENCES FOOD_ESTABLISHMENT(establishment_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS FOOD_ITEM (
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS FOOD_ITEM (
     user_id INT,
     establishment_id INT,
     CONSTRAINT FoodItem_UserId_fk FOREIGN KEY (user_id) REFERENCES USER(user_id),
-    CONSTRAINT FoodItem_EstablishmentId_fk FOREIGN KEY (establishment_id) REFERENCES FOOD_ESTABLISHMENT(establishment_id)
+    CONSTRAINT FoodItem_EstablishmentId_fk FOREIGN KEY (establishment_id) REFERENCES FOOD_ESTABLISHMENT(establishment_id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS REVIEW (
@@ -88,8 +88,8 @@ CREATE TABLE IF NOT EXISTS REVIEW (
     establishment_id INT,
     food_id INT,
     CONSTRAINT Review_UserId_fk FOREIGN KEY (user_id) REFERENCES USER (user_id),
-    CONSTRAINT Review_EstablishmentId_fk FOREIGN KEY (establishment_id) REFERENCES FOOD_ESTABLISHMENT(establishment_id),
-    CONSTRAINT Review_FoodId_fk FOREIGN KEY (food_id) REFERENCES FOOD_ITEM(food_id)
+    CONSTRAINT Review_EstablishmentId_fk FOREIGN KEY (establishment_id) REFERENCES FOOD_ESTABLISHMENT(establishment_id) ON DELETE CASCADE,
+    CONSTRAINT Review_FoodId_fk FOREIGN KEY (food_id) REFERENCES FOOD_ITEM(food_id) ON DELETE CASCADE
 );
 
 -- Inserting dummy data
