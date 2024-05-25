@@ -15,7 +15,7 @@ def validate_id (cur, t, id):
   elif t == "establishment":
     cur.execute("SELECT establishment_id FROM food_establishment WHERE establishment_id = ?", (id,))
     for establishment_id in cur:
-      if id == establishment_id[0]: return 1   
+      if id == establishment_id[0]: return 1 
 
   elif t == "food": 
     cur.execute("SELECT food_id FROM food_item WHERE food_id = ?", (id,))
@@ -117,9 +117,10 @@ def get_input (msg, type, min, max, optional_msg, optional_rev):
 # - Parameters:
 #   1. msg (string): message prompt for input
 #   2. type (string): entity type (establishment, id, review)
-#   3. optional_msg (string): message prompt for optional attributes ('y/n' prompts)
-#   4. optional_rev (bool): False = return NULL if an 'n' input should disregard optional attribute, otherwise True if 'y'   
-def get_id(msg, type, optional_msg, optional_rev, cur):
+#   3. mode (string): fetch or add mode for establishment
+#   4. optional_msg (string): message prompt for optional attributes ('y/n' prompts)
+#   5. optional_rev (bool): False = return NULL if an 'n' input should disregard optional attribute, otherwise True if 'y'   
+def get_id(msg, type, mode, optional_msg, optional_rev, cur):
   # For optional attributes
   if optional_msg:
     prompt = True
@@ -135,45 +136,91 @@ def get_id(msg, type, optional_msg, optional_rev, cur):
 
   while True:
     if type == "user":
-      try:
-        user_input = int(input(msg))
-        if validate_id(cur, "user", user_input) == 1:
-          return user_input
-        else:
-          print("User doesn't exist.")
+      if mode == "fetch":
+        try:
+          user_input = int(input(msg))
+          if validate_id(cur, "user", user_input) == 1:
+            return user_input
+          else:
+            print("User doesn't exist.")
 
-      except (ValueError, TypeError):
-        print("Invalid input!")
+        except (ValueError, TypeError):
+          print("Invalid input!")
+
+      elif mode == "add":
+        try:
+          user_input = int(input(msg))
+          if validate_id(cur, "user", user_input) == 0:
+            return user_input
+          else:
+            print("User ID is in the system already.")
+        except (ValueError, TypeError):
+          print("Invalid input!")
 
     elif type == "establishment":
-      try:
-        establishment_input = int(input(msg))
-        if validate_id(cur, "establishment", establishment_input) == 1:
-          return establishment_input
-        else:
-          print("Establishment does not exist.")
+      if mode == "fetch":
+        try:
+          establishment_input = int(input(msg))
+          if validate_id(cur, "establishment", establishment_input) == 1:
+            return establishment_input
+          else:
+            print("Establishment does not exist.")
 
-      except (ValueError, TypeError):
-        print("Invalid input!")
+        except (ValueError, TypeError):
+          print("Invalid input!")
+
+      elif mode == "add":
+        try:
+          establishment_input = int(input(msg))
+          print(establishment_input)
+          if validate_id(cur, "establishment", establishment_input) == 0:
+            return establishment_input
+          else:
+            print("Establishment ID is in the system already.")
+        except (ValueError, TypeError):
+          print("Invalid input!")
 
     elif type == "food":
-      try:
-        food_input = int(input(msg))
-        if validate_id(cur, "food", food_input) == 1:
-          return food_input
-        else:
-          print("Food item does not exist.")
+      if mode == "fetch":
+        try:
+          food_input = int(input(msg))
+          if validate_id(cur, "food", food_input) == 1:
+            return food_input
+          else:
+            print("Food item does not exist.")
 
-      except (ValueError, TypeError):
-        print("Invalid input!")
+        except (ValueError, TypeError):
+          print("Invalid input!")
+
+      elif mode == "add":
+        try:
+          food_input = int(input(msg))
+          if validate_id(cur, "food", food_input) == 0:
+            return food_input
+          else:
+            print("Food item ID is in the system already.")
+        except (ValueError, TypeError):
+          print("Invalid input!")
+
 
     elif type == "review":
-      try:
-        review_input = int(input(msg))
-        if validate_id(cur, "review", review_input) == 0:
-          return review_input
-        else:
-          print("Review doesn't exist.")
+      if mode == "fetch":
+        try:
+          review_input = int(input(msg))
+          if validate_id(cur, "review", review_input) == 1:
+            return review_input
+          else:
+            print("Review doesn't exist.")
 
-      except (ValueError, TypeError):
-        print("Invalid input!")
+        except (ValueError, TypeError):
+          print("Invalid input!")
+
+      elif mode == "add":
+        try:
+          review_input = int(input(msg))
+          if validate_id(cur, "review", review_input) == 0:
+            return review_input
+          else:
+            print("Review ID is in the system already.")
+        except (ValueError, TypeError):
+          print("Invalid input!")
