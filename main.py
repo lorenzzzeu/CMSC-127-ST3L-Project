@@ -167,6 +167,18 @@ def update_food_item():
     values = (new_value, food_id)
     cur.execute(query, values)
 
+# Main Menu
+def MainMenu():
+    print("\n----------Main Menu----------")
+    print("[1] Food Establishment")
+    print("[2] Food Item")
+    print("[3] Food Reviews")
+    print("[0] Exit")
+
+    choice = get_input("\nEnter your choice: ", "int", 0, 3, None, None)
+    return choice
+
+
 # Menu for reviews
 def review_menu(cur): 
     print("\nFood Establishment and Food Review System")
@@ -328,4 +340,21 @@ cur.execute('''
     );
 ''')
 
-review_menu(cur)
+
+while True:
+    choice = MainMenu()
+     
+    if choice == 1:
+        print("\n-> Food Establishment")
+        #function for establishment
+        # establishment_menu(cur)
+    elif choice == 2:
+        print("\n-> Food Item")
+        #function for review
+    elif choice == 3:
+        print("\n-> Reviews")
+        review_menu(cur)
+        
+    elif choice == 0: 
+        print("Goodbye!")
+        break
