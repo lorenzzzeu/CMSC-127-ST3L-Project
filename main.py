@@ -7,6 +7,7 @@ import mariadb
 
 # import functionalities for establishment
 from establishment import establishment_menu
+from food_item import food_item_menu
 
 # REVIEWS --------------------------
 def add_review(cur):
@@ -323,7 +324,7 @@ while True:
         establishment_menu(cur)
     elif choice == 2:
         print("\n-> Food Item")
-        #function for review
+        food_item_menu(cur)
     elif choice == 3:
         print("\n-> Reviews")
         review_menu(cur)

@@ -148,9 +148,18 @@ def update_establishment(cur):
 # View all establishments
 def display_all_establishments(cur):
     print("\n----------Display All Establishments----------")
+    print("[1] View all establishments")
+    print("[2] View all establishments with a high average rating (rating >= 4)")
+    choice = get_input("\nEnter your choice: ", "int", 1, 2, None, None)
 
-    query = "SELECT establishment_id, establishment_name, date_established, location, opening_hour, user_id FROM FOOD_ESTABLISHMENT"
-    cur.execute(query)
+    if choice == 1:
+        query = "SELECT establishment_id, establishment_name, date_established, location, opening_hour, user_id FROM FOOD_ESTABLISHMENT"
+        cur.execute(query)
+
+    elif choice == 2:
+        query = "SELECT * FROM FOOD_ESTABLISHMENT WHERE establishment_id IN (SELECT establishment_id FROM REVIEW GROUP BY establishment_id HAVING AVG(rating) >= 4)"
+        cur.execute(query)
+
     result = cur.fetchall()
 
     for establishment in result:
