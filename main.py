@@ -12,133 +12,142 @@ from food_item import food_item_menu
 # REVIEWS --------------------------
 def add_review(cur):
     review_id = get_id("Enter review ID: ", "review", "add", None, None, cur)
+
+    choice = get_input("\nAre you providing a review for an Establishment or a Food Item? (Press 1 for Establishment; Press 2 for Food Item): ", "int", 1, 2, None, None)
+
     comment = get_input("Enter comment: ", "string", 1, 250, None, None)
     rating = int(get_input("Enter rating (1-5): ", "int", 1, 5, None, None))
     content = get_input("Enter content: ", "string", 1, 1000, None, None)
     year = datetime.now().year
     month = datetime.now().month
     day = datetime.now().day
-    average_rating = rating
-    service = int(get_input("Enter service rating (1-5): ", "int", 1, 5, None, None))
-    ambience = int(get_input("Enter ambience rating (1-5): ", "int", 1, 5, None, None))
-    cleanliness = int(get_input("Enter cleanliness rating (1-5): ", "int", 1, 5, None, None))
-    taste = int(get_input("Enter taste rating (1-5): ", "int", 1, 5, None, None))
-    texture = int(get_input("Enter texture rating (1-5): ", "int", 1, 5, None, None))
-    plating = int(get_input("Enter plating rating (1-5): ", "int", 1, 5, None, None))
-    classification = get_input("Enter classification: ", "string", 1, 100, None, None)
+    average_rating = rating    
     user_id = int(get_id("Enter user ID: ", "user", "fetch", None, None, cur))
-    establishment_id = get_id("Enter establishment ID (or 0 if reviewing a food item): ", "establishment", "fetch", None, None, cur)
-    food_id = get_id("Enter food ID (or 0 if reviewing an establishment): ", "food", "fetch", None, None, cur)
 
+    service = None
+    ambience = None
+    cleanliness = None
+    plating = None
+    taste = None
+    texture = None
+    establishment_id = None
+    food_id = None
+    classification = None
+    
+    if choice == 1:
+        establishment_id = get_id("Enter establishment ID: ", "establishment", "fetch", None, None, cur)
+        service = int(get_input("Enter service rating (1-5): ", "int", 1, 5, None, None))
+        ambience = int(get_input("Enter ambience rating (1-5): ", "int", 1, 5, None, None))
+        cleanliness = int(get_input("Enter cleanliness rating (1-5): ", "int", 1, 5, None, None))
+        plating = int(get_input("Enter plating rating (1-5): ", "int", 1, 5, None, None))
+        classification = "Food Establishment"
+
+    elif choice == 2:
+        food_id = get_id("Enter food ID: ", "food", "fetch", None, None, cur)
+        taste = int(get_input("Enter taste rating (1-5): ", "int", 1, 5, None, None))
+        texture = int(get_input("Enter texture rating (1-5): ", "int", 1, 5, None, None))
+        classification = "Food Item"
+        
     query = "INSERT INTO REVIEW (review_id, comment, rating, content, year, month, day, average_rating, service, ambience, cleanliness, taste, texture, plating, classification, user_id, establishment_id, food_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     values = (review_id, comment, rating, content, year, month, day, average_rating, service, ambience, cleanliness, taste, texture, plating, classification, user_id, establishment_id, food_id)
     cur.execute(query, values)
 
 
 def view_review(cur):
-    choice = get_input("Enter '1' to view reviews for an establishment or '2' to view reviews for a food item (0 to exit): ", "int", 0, 2, None, None)
-    if choice == 1:
-        establishment_id = get_id("Enter the establishment ID: ", "establishment","fetch", None, None, cur)
-        query = "SELECT * FROM REVIEW WHERE establishment_id = %s"
-        cur.execute(query, (establishment_id,))
-    elif choice == 2:
-        food_id = get_id("Enter the food item ID: ", "food","fetch", None, None, cur)
-        query = "SELECT * FROM REVIEW WHERE food_id = %s"
-        cur.execute(query, (food_id,))
-    elif choice == 0:
-        return
-    else:
-        print("Invalid choice")
-        return
+    while True:
+        print("\n----------Display a Review----------")
+        print("[1] View Reviews for a Food Establishment or Item")
+        print("[2] View Reviews for a Food Establishment or Item within a month")
+        print("[0] Back to Menu")
+        choice = get_input("\nEnter your choice: ", "int", 0, 2, None, None)
 
-    rows = cur.fetchall()
-    if rows:
-        for row in rows:
-            print(row)
-    else:
-        print("No reviews found")
+        if choice == 1:
+            review_choice = get_input("Enter '1' to view reviews for an establishment or '2' to view reviews for a food item (0 to exit): ", "int", 0, 2, None, None)
+            if review_choice == 1:
+                establishment_id = get_id("Enter the establishment ID: ", "establishment","fetch", None, None, cur)
+                query = "SELECT * FROM REVIEW WHERE establishment_id = %s"
+                cur.execute(query, (establishment_id,))
+            elif review_choice == 2:
+                food_id = get_id("Enter the food item ID: ", "food","fetch", None, None, cur)
+                query = "SELECT * FROM REVIEW WHERE food_id = %s"
+                cur.execute(query, (food_id,))
+            elif review_choice == 0:
+                return
 
-# NOT YET IMPLEMENTED
-def view_reviews_within_month():
-    choice = get_input("Enter 'e' to view reviews for an establishment or 'f' to view reviews for a food item: ")
-    if choice == 'e':
-        establishment_id = int(get_input("Enter establishment ID: "))
-        query = "SELECT * FROM REVIEW WHERE establishment_id = %s AND month = %s"
-        values = (establishment_id, datetime.now().month)
-    elif choice == 'f':
-        food_id = int(get_input("Enter food ID: "))
-        query = "SELECT * FROM REVIEW WHERE food_id = %s AND month = %s"
-        values = (food_id, datetime.now().month)
-    else:
-        print("Invalid choice")
-        return
+            rows = cur.fetchall()
+            if rows:
+                for row in rows:
+                    print(row)
+            else:
+                print("No reviews found")
 
-    cur.execute(query, values)
-    rows = cur.fetchall()
-    if rows:
-        for row in rows:
-            print(row)
-    else:
-        print("No reviews found for this month")
+        elif choice == 2:
+            while True:
+                month_review_choice = get_input("Enter 'e' to view reviews for an establishment or 'f' to view reviews for a food item: ", "string", 1, 1, None, None)
+                if month_review_choice == 'e':
+                    establishment_id = get_id("Enter the establishment ID: ", "establishment","fetch", None, None, cur)
+                    query = "SELECT * FROM REVIEW WHERE establishment_id = %s AND month = %s"
+                    values = (establishment_id, datetime.now().month)
+                elif month_review_choice == 'f':
+                    food_id = get_id("Enter the food item ID: ", "food","fetch", None, None, cur)
+                    query = "SELECT * FROM REVIEW WHERE food_id = %s AND month = %s"
+                    values = (food_id, datetime.now().month)
+                else:
+                    print("Invalid choice")
+                    continue
 
-def update_review(cur):
+                cur.execute(query, values)
+                rows = cur.fetchall()
+                if rows:
+                    for row in rows:
+                        print(row)
+                else:
+                    print("No reviews found for this month")
+
+                return
+        elif choice == 0:
+            return
+
+def update_review(cur): # Need pa lagyan ng checker if yung user na yun yung may ari nung review
     review_id = int(get_id("Enter review ID: ", "review", "fetch", None, None, cur))
+
+    query = "SELECT classification FROM REVIEW WHERE review_id = %s"
+    cur.execute(query, (review_id,))
+    classification = cur.fetchone()
+
+    classification = classification[0]
+
     rating = int(get_input("Enter new rating (1-5): ", "int", 1, 5, None, None))
     comment = get_input("Enter new comment: ", "string", 1, 250, None, None)
     content = get_input("Enter new content: ", "string", 1, 1000, None, None)
-    service = int(get_input("Enter new service rating (1-5): ", "int", 1, 5, None, None))
-    ambience = int(get_input("Enter new ambience rating (1-5): ", "int", 1, 5, None, None))
-    cleanliness = int(get_input("Enter new cleanliness rating (1-5): ", "int", 1, 5, None, None))
-    taste = int(get_input("Enter new taste rating (1-5): ", "int", 1, 5, None, None))
-    texture = int(get_input("Enter new texture rating (1-5): ", "int", 1, 5, None, None))
-    plating = int(get_input("Enter new plating rating (1-5): ", "int", 1, 5, None, None))
-    classification = get_input("Enter new classification: ", "string", 1, 100, None, None)
-    user_id = int(get_id("Enter new user ID: ", "user", "fetch", None, None, cur)) #hindi ata to kailangan(?) since ung user na nag input lng non ung pwede magpalit. or dapat pala may validation dito to check if yung user na nag bigay ng revview ang maguupdate
-    establishment_id = get_id("Enter new establishment ID (or 0 if reviewing a food item): ", "establishment", "fetch", None, None, cur)   
-    food_id = int(get_id("Enter new food ID (or 0 if reviewing an establishment): ", "user","fetch", None, None, cur))
 
-    query = "UPDATE REVIEW SET rating = %s, comment = %s, content = %s, service = %s, ambience = %s, cleanliness = %s, taste = %s, texture = %s, plating = %s, classification = %s, user_id = %s, establishment_id = %s, food_id = %s WHERE review_id = %s"
-    values = (rating, comment, content, service, ambience, cleanliness, taste, texture, plating, classification, user_id, establishment_id, food_id, review_id)
+    service = None
+    ambience = None
+    cleanliness = None
+    plating = None
+    taste = None
+    texture = None
+
+    if classification == "Food Establishment":
+        service = int(get_input("Enter new service rating (1-5): ", "int", 1, 5, None, None))
+        ambience = int(get_input("Enter new ambience rating (1-5): ", "int", 1, 5, None, None))
+        cleanliness = int(get_input("Enter new cleanliness rating (1-5): ", "int", 1, 5, None, None))
+        plating = int(get_input("Enter new plating rating (1-5): ", "int", 1, 5, None, None))
+
+    elif classification == "Food Item":
+        taste = int(get_input("Enter new taste rating (1-5): ", "int", 1, 5, None, None))
+        texture = int(get_input("Enter new texture rating (1-5): ", "int", 1, 5, None, None))
+
+    # user_id = int(get_id("Enter new user ID: ", "user", "fetch", None, None, cur)) #hindi ata to kailangan(?) since ung user na nag input lng non ung pwede magpalit. or dapat pala may validation dito to check if yung user na nag bigay ng revview ang maguupdate
+
+    query = "UPDATE REVIEW SET rating = %s, comment = %s, content = %s, service = %s, ambience = %s, cleanliness = %s, taste = %s, texture = %s, plating = %s WHERE review_id = %s"
+    values = (rating, comment, content, service, ambience, cleanliness, taste, texture, plating, review_id)
     cur.execute(query, values)
 
-
-def delete_review(cur):
+def delete_review(cur): # Need pa lagyan ng checker if yung user na yun yung may ari nung review
     review_id = int(get_id("Enter review ID: ", "review", "fetch", None, None, cur))
     query = "DELETE FROM REVIEW WHERE review_id = %s"
     cur.execute(query, (review_id,))
-
-
-def add_food_item():
-    food_id = get_id("FOOD_ITEM")
-    food_name = get_input("Enter food name: ")
-    price = float(get_input("Enter price: "))
-    food_type = get_input("Enter food type: ")
-    user_id = int(get_input("Enter user ID: "))
-    establishment_id = int(get_input("Enter establishment ID: "))
-    query = "INSERT INTO FOOD_ITEM (food_id, food_name, price, type, user_id, establishment_id) VALUES (%s, %s, %s, %s, %s, %s)"
-    values = (food_id, food_name, price, food_type, user_id, establishment_id)
-    cur.execute(query, values)
-
-def delete_food_item():
-    food_id = int(get_input("Enter food ID: "))
-    query = "DELETE FROM FOOD_ITEM WHERE food_id = %s"
-    cur.execute(query, (food_id,))
-
-def search_food_item():
-    search_term = get_input("Enter search term: ")
-    query = "SELECT * FROM FOOD_ITEM WHERE food_name LIKE %s OR type LIKE %s"
-    values = (f"%{search_term}%", f"%{search_term}%")
-    cur.execute(query, values)
-    for row in cur:
-        print(row)
-
-def update_food_item():
-    food_id = int(get_input("Enter food ID: "))
-    field = get_input("Enter field to update (food_name, price, type): ")
-    new_value = get_input(f"Enter new value for {field}: ")
-    query = f"UPDATE FOOD_ITEM SET {field} = %s WHERE food_id = %s"
-    values = (new_value, food_id)
-    cur.execute(query, values)
 
 # Main Menu
 def MainMenu():
