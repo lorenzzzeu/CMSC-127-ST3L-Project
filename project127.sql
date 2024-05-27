@@ -95,11 +95,11 @@ CREATE TABLE IF NOT EXISTS REVIEW (
 -- Inserting dummy data
 INSERT INTO USER (first_name, middle_name, last_name, birthday, age, email, password, displayed_name, type_of_food_establishment_owned, food_preference, is_owner, is_customer) 
 VALUES 
-('Juan', 'Dela Cruz', 'Santos', '1990-05-15', 31, 'juan@example.com', 'password123', 'JuanDC', NULL, 'Filipino cuisine', 1, 1),
-('Maria', 'Luna', 'Reyes', '1985-09-20', 36, 'maria@example.com', 'password456', 'MariaL', NULL, 'Japanese cuisine', 1, 1),
-('Antonio', 'Garcia', 'Ramos', '1982-07-10', 39, 'antonio@example.com', 'password789', 'Tony', 'Bakery', 'Italian cuisine', 1, 1),
-('Elena', 'Cruz', 'Lopez', '1995-03-25', 26, 'elena@example.com', 'passwordabc', 'Ellie', 'Coffee shop', 'Korean cuisine', 1, 1),
-('Pedro', NULL, 'Gonzales', '1998-11-08', 23, 'pedro@example.com', 'passworddef', 'Pedring', 'Fast food', 'Chinese cuisine', 1, 1);
+('Juan', 'Dela Cruz', 'Santos', '1990-05-15', 31, 'juan@example.com', 'password123', 'JuanDC', NULL, 'Filipino cuisine', 1, 0),
+('Maria', 'Luna', 'Reyes', '1985-09-20', 36, 'maria@example.com', 'password456', 'MariaL', NULL, 'Japanese cuisine', 1, 0),
+('Antonio', 'Garcia', 'Ramos', '1982-07-10', 39, 'antonio@example.com', 'password789', 'Tony', 'Bakery', 'Italian cuisine', 0, 1),
+('Elena', 'Cruz', 'Lopez', '1995-03-25', 26, 'elena@example.com', 'passwordabc', 'Ellie', 'Coffee shop', 'Korean cuisine', 0, 1),
+('Pedro', NULL, 'Gonzales', '1998-11-08', 23, 'pedro@example.com', 'passworddef', 'Pedring', 'Fast food', 'Chinese cuisine', 0, 1);
 
 INSERT INTO USER_ADDRESS (user_id, address)
 VALUES 
@@ -121,11 +121,11 @@ VALUES
 -- Inserting dummy data into FOOD_ESTABLISHMENT table
 INSERT INTO FOOD_ESTABLISHMENT (establishment_name, date_established, location, opening_hour, user_id)
 VALUES 
-('Juan''s Grill', '2020-01-10', 'Makati City', '08:00:00', 1),
+('Juan''s Grill', '2020-01-10', 'Makati City', '08:00:00', 5),
 ('Tokyo Ramen House', '2018-05-20', 'Quezon City', '11:00:00', 2),
 ('Tony''s Bakery', '2015-11-03', 'Taguig City', '06:30:00', 3),
-('Ellie''s Cafe', '2019-09-15', 'Pasig City', '07:00:00', 4),
-('Pedring''s Burger Joint', '2022-03-01', 'Manila', '10:30:00', 5);
+('Ellie''s Cafe', '2019-09-15', 'Pasig City', '07:00:00', 2),
+('Pedring''s Burger Joint', '2022-03-01', 'Manila', '10:30:00', 1);
 
 -- Inserting dummy data into FOOD_ESTABLISHMENT_CONTACT table
 INSERT INTO FOOD_ESTABLISHMENT_CONTACT (establishment_id, establishment_contact_number)

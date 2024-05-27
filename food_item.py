@@ -1,5 +1,6 @@
 from system import count, get_id, get_input, validate_id
 
+# Menu for Food Item
 def food_item_menu(cur):
     while True:
         print(f"\n----------Food Item----------")
@@ -30,18 +31,40 @@ def food_item_menu(cur):
         elif choice == 0: break
 
     return
-        
+
+# Add a Food Item      
 def add_food_item(cur):
-    food_id = get_id("Enter food item id: ", "food", "add", None, None, cur)
-    food_name = get_input("Enter food name: ", "string", 1, 100, None, None)
-    price = float(get_input("Enter price: ", "int", 1, 10, None, None))
-    food_type = get_input("Enter food type: ", "string", 1, 100, None, None)
+    #ask muna kung sino yung user para malaman kung owner ba siya. Owner lang ang pwede mag add
     user_id = get_id("Enter user ID: ", "food", "fetch", None, None, cur)
+    #check if user is an owner
+    query = "SELECT is_owner FROM User WHERE user_id = %s"
+    cur.execute(query, (user_id,))
+
+    is_owner = cur.fetchone()[0]
+
+    if (is_owner) == 0:
+        print("You are not an owner. Only owners can add food items.")
+        return
+
+    #Ask for food estabs, to check if may access siya mag add doon sa food establishment
     establishment_id = get_id("Enter establishment ID: ", "food", "fetch", None, None, cur)
-    query = "INSERT INTO FOOD_ITEM (food_id, food_name, price, type, user_id, establishment_id) VALUES (%s, %s, %s, %s, %s, %s)"
-    values = (food_id, food_name, price, food_type, user_id, establishment_id)
+    query = "SELECT user_id FROM FOOD_ESTABLISHMENT WHERE establishment_id = %s"
+    cur.execute(query, (establishment_id,))
+
+    owner_of_food_estab = cur.fetchone()[0]
+    if(user_id != owner_of_food_estab):
+        print("You do not have access to this food establishment. You can only add food items to your own food establishment.")
+        return
+
+    #ask for food details !!tinanggal ko na si food_id since auto increment naman, hayaan na siguro na mag generate yung program para di hassle sa admin
+    food_name = get_input("Enter food name: ", "string", 1, 100, None, None)
+    price = float(get_input("Enter price: ", "int", 1, 9999, None, None))
+    food_type = get_input("Enter food type: ", "string", 1, 100, None, None)
+    query = "INSERT INTO FOOD_ITEM ( food_name, price, type, user_id, establishment_id) VALUES ( %s, %s, %s, %s, %s)"
+    values = ( food_name, price, food_type, user_id, establishment_id)
     cur.execute(query, values)
-    
+
+# Delete a Food Item
 def delete_food_item(cur):
     food_id = int(get_id("Enter food ID: ", "food", "fetch", None, None, cur))
     query = "DELETE FROM FOOD_ITEM WHERE food_id = %s"
