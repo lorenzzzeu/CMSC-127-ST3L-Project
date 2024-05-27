@@ -157,8 +157,8 @@ VALUES
 -- Inserting dummy data into REVIEW table
 INSERT INTO REVIEW (comment, rating, content, year, day, month, average_rating, service, ambience, cleanliness, taste, texture, plating, classification, user_id, establishment_id, food_id)
 VALUES 
-('Great food and service!', 5, 'The restaurant ambiance is cozy and inviting. Their dishes are delicious and well-prepared.', 2024, 25, 5, 5, 5, 4, 5, 5, 5, 5, 'Positive', 1, 1, 1),
-('Average experience', 3, 'The food was decent, but the service could be improved. The place was clean.', 2024, 18, 5, 3, 3, 4, 4, 3, 4, 3, 'Neutral', 2, 2, 2),
-('Delicious food!', 4, 'The food was amazing! I loved the flavors and presentation.', 2024, 10, 5, 4, 5, 5, 5, 5, 5, 5, 'Positive', 3, 3, 3),
-('Disappointing experience', 2, 'The food was not up to expectations. Service was slow and the place was messy.', 2024, 5, 5, 2, 2, 2, 2, 3, 2, 2, 'Negative', 4, 4, 4),
-('Fast and convenient', 4, 'Quick service and tasty food. Perfect for a quick meal.', 2024, 2, 5, 4, 4, 3, 4, 4, 4, 4, 'Positive', 5, 5, 5);
+('Great food and service!', 5, 'The restaurant ambiance is cozy and inviting. Their dishes are delicious and well-prepared.', 2024, 25, 5, 5, 5, 4, 5, 5, 5, 5, 'Food Establishment', 1, 1, NULL),
+('Average experience', 3, 'The food was decent, but the service could be improved. The place was clean.', 2024, 18, 5, 3, 3, 4, 4, 3, 4, 3, 'Food Item', 2, NULL, 2),
+('Delicious food!', 4, 'The food was amazing! I loved the flavors and presentation.', 2024, 10, 5, 4, 5, 5, 5, 5, 5, 5, 'Food Establishment', 3, 3, NULL),
+('Disappointing experience', 2, 'The food was not up to expectations. Service was slow and the place was messy.', 2024, 5, 5, 2, 2, 2, 2, 3, 2, 2, 'Food Item', 4, NULL, 4),
+('Fast and convenient', 4, 'Quick service and tasty food. Perfect for a quick meal.', 2024, 2, 5, 4, 4, 3, 4, 4, 4, 4, 'Food Establishment', 5, 5, NULL);
