@@ -1,15 +1,14 @@
 from system import count, get_id, get_input, validate_id
 
 # Menu for Food Item
-def food_item_menu(cur):
+def food_item_menu(cur, user_id):
     #ask muna kung sino yung user para malaman kung owner ba siya. Owner lang ang pwede mag add
-    user_id = get_id("Enter user ID: ", "user", "fetch", None, None, cur)
+    
     #check if user is an owner
     query = "SELECT is_owner FROM User WHERE user_id = %s"
     cur.execute(query, (user_id,))
     
     is_owner = cur.fetchone()[0]
-    print(is_owner)
 
     if (is_owner) == 1:
         while True:
@@ -31,10 +30,10 @@ def food_item_menu(cur):
                 add_food_item(cur, user_id)
             elif choice == 3:
                 print("\n-> Editing a food item")
-                update_food_item(cur)
+                update_food_item(cur, user_id)
             elif choice == 4:
                 print("\n-> Deleting a food item")
-                delete_food_item(cur)
+                delete_food_item(cur, user_id)
             elif choice == 5:
                 print("\n-> Viewing all food item")
                 display_all_food_items(cur)   
@@ -62,29 +61,54 @@ def food_item_menu(cur):
 
 # Add a Food Item      
 def add_food_item(cur, user_id):
-    #Ask for food estabs, to check if may access siya mag add doon sa food establishment
-    establishment_id = get_id("Enter establishment ID: ", "food", "fetch", None, None, cur)
-    query = "SELECT user_id FROM FOOD_ESTABLISHMENT WHERE establishment_id = %s"
-    cur.execute(query, (establishment_id,))
+    while True:
+        #Ask for food estabs, to check if may access siya mag add doon sa food establishment
+        establishment_id = get_id("Enter establishment ID: ", "establishment", "fetch", None, None, cur)
+        query = "SELECT user_id FROM FOOD_ESTABLISHMENT WHERE establishment_id = %s"
+        cur.execute(query, (establishment_id,))
 
-    owner_of_food_estab = cur.fetchone()[0]
-    if(user_id != owner_of_food_estab):
-        print("You do not have access to this food establishment. You can only add food items to your own food establishment.")
-        return
+        owner_of_food_estab = cur.fetchone()[0]
+        if(user_id != owner_of_food_estab):
+            print("You do not have access to this food establishment. You can only add food items to your own food establishment.")
+            return
 
-    #ask for food details !!tinanggal ko na si food_id since auto increment naman, hayaan na siguro na mag generate yung program para di hassle sa admin
-    food_name = get_input("Enter food name: ", "string", 1, 100, None, None)
-    price = float(get_input("Enter price: ", "int", 1, 9999, None, None))
-    food_type = get_input("Enter food type: ", "string", 1, 100, None, None)
-    query = "INSERT INTO FOOD_ITEM ( food_name, price, type, user_id, establishment_id) VALUES ( %s, %s, %s, %s, %s)"
-    values = ( food_name, price, food_type, user_id, establishment_id)
-    cur.execute(query, values)
+        cur.execute("SELECT MAX(food_id) FROM FOOD_ITEM")
+        new_increment = cur.fetchone()[0]
+
+        alter_query = "ALTER TABLE FOOD_ITEM AUTO_INCREMENT = %s"
+        cur.execute(alter_query, (new_increment,))
+
+        #ask for food details !!tinanggal ko na si food_id since auto increment naman, hayaan na siguro na mag generate yung program para di hassle sa admin
+        food_name = get_input("Enter food name: ", "string", 1, 100, None, None)
+        price = float(get_input("Enter price: ", "int", 1, 9999, None, None))
+        food_type = get_input("Enter food type: ", "string", 1, 100, None, None)
+        query = "INSERT INTO FOOD_ITEM ( food_name, price, type, user_id, establishment_id) VALUES ( %s, %s, %s, %s, %s)"
+        values = (food_name, price, food_type, user_id, establishment_id)
+        cur.execute(query, values)
+
+        break
+    return
 
 # Delete a Food Item
-def delete_food_item(cur): # Need pa lagyan ng checker if yung user na yun yung may ari nung review
-    food_id = int(get_id("Enter food ID: ", "food", "fetch", None, None, cur))
-    query = "DELETE FROM FOOD_ITEM WHERE food_id = %s"
-    cur.execute(query, (food_id,))       
+def delete_food_item(cur, user_id): # lagyan ng checker if yung user na yun yung may ari nung review
+    while True:
+
+        food_id = int(get_id("Enter food ID: ", "food", "fetch", None, None, cur))
+        query = "SELECT user_id FROM FOOD_ITEM WHERE food_id = %s"
+        cur.execute(query, (food_id,))
+
+        owner_of_food_item = cur.fetchone()[0]
+        
+        if(user_id != owner_of_food_item):
+            print("You can't delete this food item added by another user.")
+            continue
+
+        query = "DELETE FROM FOOD_ITEM WHERE food_id = %s"
+        cur.execute(query, (food_id,))    
+
+        break
+
+    return   
 
 def search_food_item(cur):
     # Search food item based on the name and food type
@@ -97,14 +121,29 @@ def search_food_item(cur):
     for row in cur:
         print(row) 
        
-def update_food_item(cur): # Need pa lagyan ng checker if yung user na yun yung may ari nung review
-    food_id = int(get_id("Enter food ID: ", "food", "fetch", None, None, cur))
-    food_name = get_input("Enter new food name: ", "string", 1, 100, None, None)
-    price = float(get_input("Enter new price: ", "int", 1, 10, None, None))
-    food_type = get_input("Enter new food type: ", "string", 1, 100, None, None)
-    query = "UPDATE FOOD_ITEM SET food_name = %s, price = %s, type = %s WHERE food_id = %s"
-    values = (food_name, price, food_type, food_id)
-    cur.execute(query, values)
+def update_food_item(cur, user_id): # Need pa lagyan ng checker if yung user na yun yung may ari nung review
+    while True:
+
+        food_id = int(get_id("Enter food ID: ", "food", "fetch", None, None, cur))
+        query = "SELECT user_id FROM FOOD_ITEM WHERE food_id = %s"
+        cur.execute(query, (food_id,))
+
+        owner_of_food_item = cur.fetchone()[0]
+        
+        if(user_id != owner_of_food_item):
+            print("You can't delete this food item added by another user.")
+            continue
+
+        food_name = get_input("Enter new food name: ", "string", 1, 100, None, None)
+        price = float(get_input("Enter new price: ", "int", 1, 999, None, None))
+        food_type = get_input("Enter new food type: ", "string", 1, 100, None, None)
+        query = "UPDATE FOOD_ITEM SET food_name = %s, price = %s, type = %s WHERE food_id = %s AND user_id = %s"
+        values = (food_name, price, food_type, food_id, user_id)
+        cur.execute(query, values)
+
+        break
+
+    return
 
 # Display food items according to different choices
 def display_all_food_items(cur):
@@ -121,24 +160,34 @@ def display_all_food_items(cur):
         choice = get_input("\nEnter your choice: ", "int", 0, 6, None, None)
 
         if choice == 1:
-            establishment_id = get_id("Enter establishment ID: ", "food", "fetch", None, None, cur)
+            establishment_id = get_id("Enter establishment ID: ", "establishment", "fetch", None, None, cur)
             query = f"SELECT * FROM FOOD_ITEM WHERE establishment_id = {establishment_id}"
             cur.execute(query)
 
         elif choice == 2:
-            establishment_id = get_id("Enter establishment ID: ", "food", "fetch", None, None, cur)
+            establishment_id = get_id("Enter establishment ID: ", "establishment", "fetch", None, None, cur)
             food_type = get_input("Enter food type: ", "string", 1, 100, None, None)
             query = "SELECT * FROM FOOD_ITEM WHERE establishment_id = %s AND type = %s"
             values = (establishment_id, food_type)
             cur.execute(query, values)
 
         elif choice == 3:
-            sort = get_input("\nSort By Price (Descending or Ascending): ", "string", 1, 100, None, None)
-            if sort.lower() == "ascending":
-                query = "SELECT * FROM FOOD_ITEM ORDER BY price ASC"
-            else:
-                query = "SELECT * FROM FOOD_ITEM ORDER BY price DESC"
-            cur.execute(query)
+            while True:
+                sort = get_input("\nSort By Price (Descending or Ascending): ", "string", 1, 100, None, None)
+
+                establishment_id = get_id("Enter establishment ID: ", "establishment", "fetch", None, None, cur)
+
+                if sort.lower() == "ascending":
+                    query = "SELECT * FROM FOOD_ITEM WHERE establishment_id = %s ORDER BY price ASC"
+                elif sort.lower() == "descending":
+                    query = "SELECT * FROM FOOD_ITEM WHERE establishment_id = %s ORDER BY price DESC"
+                else:
+                    print("Invalid Input")
+                    continue
+                    
+                cur.execute(query, (establishment_id,))
+
+                break
 
         elif choice == 4:
             food_type = get_input("Enter food type: ", "string", 1, 100, None, None)
@@ -147,7 +196,7 @@ def display_all_food_items(cur):
 
         elif choice == 5:
             search_price_min = float(get_input("Enter minimum food item price: ", "int", 1, 10, None, None))
-            search_price_max = float(get_input("Enter maximum food item price: ", "int", 1, 10, None, None))
+            search_price_max = float(get_input("Enter maximum food item price: ", "int", 1, 999, None, None))
 
             query_price = "SELECT * FROM FOOD_ITEM WHERE price BETWEEN %s AND %s"
             price_values = (search_price_min, search_price_max)
@@ -156,7 +205,7 @@ def display_all_food_items(cur):
 
         elif choice == 6:
             search_price_min = float(get_input("Enter minimum food item price: ", "int", 1, 10, None, None))
-            search_price_max = float(get_input("Enter maximum food item price: ", "int", 1, 10, None, None))
+            search_price_max = float(get_input("Enter maximum food item price: ", "int", 1, 999, None, None))
             food_type = get_input("Enter food type: ", "string", 1, 100, None, None)
             query = "SELECT * FROM FOOD_ITEM WHERE price BETWEEN %s AND %s AND type = %s"
             values = (search_price_min, search_price_max, food_type)
