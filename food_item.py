@@ -70,7 +70,7 @@ def add_food_item(cur, user_id):
         owner_of_food_estab = cur.fetchone()[0]
         if(user_id != owner_of_food_estab):
             print("You do not have access to this food establishment. You can only add food items to your own food establishment.")
-            return
+            continue
 
         cur.execute("SELECT MAX(food_id) FROM FOOD_ITEM")
         new_increment = cur.fetchone()[0]
@@ -118,8 +118,13 @@ def search_food_item(cur):
     values = (f"%{search_term}%", f"%{search_term}%")
 
     cur.execute(query, values)
-    for row in cur:
-        print(row) 
+    
+    rows = cur.fetchall()
+    if rows:
+        for row in rows:
+            print(row)
+    else:
+        print("\nThere is no food item with this type")
        
 def update_food_item(cur, user_id): # Need pa lagyan ng checker if yung user na yun yung may ari nung review
     while True:
@@ -131,8 +136,8 @@ def update_food_item(cur, user_id): # Need pa lagyan ng checker if yung user na 
         owner_of_food_item = cur.fetchone()[0]
         
         if(user_id != owner_of_food_item):
-            print("You can't delete this food item added by another user.")
-            continue
+            print("\nYou can't update this food item added by another user.")
+            return
 
         food_name = get_input("Enter new food name: ", "string", 1, 100, None, None)
         price = float(get_input("Enter new price: ", "int", 1, 999, None, None))
@@ -204,9 +209,9 @@ def display_all_food_items(cur):
             cur.execute(query_price, price_values)
 
         elif choice == 6:
+            food_type = get_input("Enter food type: ", "string", 1, 100, None, None)
             search_price_min = float(get_input("Enter minimum food item price: ", "int", 1, 10, None, None))
             search_price_max = float(get_input("Enter maximum food item price: ", "int", 1, 999, None, None))
-            food_type = get_input("Enter food type: ", "string", 1, 100, None, None)
             query = "SELECT * FROM FOOD_ITEM WHERE price BETWEEN %s AND %s AND type = %s"
             values = (search_price_min, search_price_max, food_type)
             cur.execute(query, values)
