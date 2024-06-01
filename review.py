@@ -77,6 +77,17 @@ def add_review(cur, user_id):
     cur.execute(alter_query, (new_increment,))
     
     if choice == 1:
+        cur.execute("SELECT establishment_id, establishment_name FROM FOOD_ESTABLISHMENT")
+        food_items = cur.fetchall()
+
+        if food_items:
+            print("\nList of Food Establishments")
+            for item in food_items:
+                print(f"Establishment ID: {item[0]}")
+                print(f"Establishment Name: {item[1]}\n")
+        else:
+            print("\nNo food establishments available.")
+
         establishment_id = get_id("Enter establishment ID: ", "establishment", "fetch", None, None, cur)
         comment = get_input("Enter comment: ", "string", 1, 250, None, None)
         content = get_input("Enter content: ", "string", 1, 1000, None, None)
@@ -87,6 +98,18 @@ def add_review(cur, user_id):
         classification = "Food Establishment"
 
     elif choice == 2:
+        cur.execute("SELECT food_id, food_name, establishment_name FROM FOOD_ITEM NATURAL JOIN FOOD_ESTABLISHMENT")
+        food_items = cur.fetchall()
+
+        if food_items:
+            print("\nList of Food Items")
+            for item in food_items:
+                print(f"Food ID: {item[0]}")
+                print(f"Food Name: {item[1]}")
+                print(f"Establishment Name: {item[2]}\n")
+        else:
+            print("\nNo food items available.")
+
         food_id = get_id("Enter food ID: ", "food", "fetch", None, None, cur)
         comment = get_input("Enter comment: ", "string", 1, 250, None, None)
         content = get_input("Enter content: ", "string", 1, 1000, None, None)
