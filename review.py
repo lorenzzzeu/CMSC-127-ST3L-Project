@@ -148,9 +148,9 @@ def view_review(cur):
                         
                     # Print Establishment ID or Food ID if not None
                     if row[16] is not None:
-                        print("Establishment ID:", row[15])
+                        print("Establishment ID:", row[16])
                     if row[17] is not None:
-                        print("Food ID:", row[16])
+                        print("Food ID:", row[17])
             else:
                 print("No reviews found")
 
@@ -173,7 +173,32 @@ def view_review(cur):
                 rows = cur.fetchall()
                 if rows:
                     for row in rows:
-                        print(row)
+                        print("Review:")
+                        print("Review ID:", row[0])
+                        print("User ID:", row[15])
+                        print("Comment:", row[1])
+                        print("Rating:", row[2])
+                        print("Content:", row[3])
+                        print("Year:", row[4])
+                        print("Day:", row[5])
+                        print("Month:", row[6])
+                        print("Classification:", row[14])
+                        
+                        # Print attributes based on classification
+                        if row[14] == "Food Establishment":
+                            print("Service Rating:", row[7])
+                            print("Ambience Rating:", row[8])
+                            print("Cleanliness Rating:", row[9])
+                        elif row[14] == "Food Item":
+                            print("Taste Rating:", row[10])
+                            print("Texture Rating:", row[11])
+                            print("Plating Rating:", row[12])
+                            
+                        # Print Establishment ID or Food ID if not None
+                        if row[16] is not None:
+                            print("Establishment ID:", row[16])
+                        if row[17] is not None:
+                            print("Food ID:", row[17])
                 else:
                     print("No reviews found for this month")
 
