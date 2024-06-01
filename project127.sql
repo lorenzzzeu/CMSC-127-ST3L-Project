@@ -142,7 +142,7 @@ VALUES
 ('Juan''s Burger Joint', '2022-03-01', 'Manila', '10:30:00', 1),
 ('Lorenz''s KayEfSi', '2022-02-14', 'Taguig City', '09:00:00', 6),
 ('Gabbo InSide Restaurant', '2018-09-10', 'Makati City', '12:00:00', 6),
-('Sitio''s Bakery', '2019-12-08', 'Taguig City', '06:00:00', 6),
+('Donut Dunkin & Bakery', '2019-12-08', 'Taguig City', '06:00:00', 6),
 ('Tatang Dan''s Foodhouse', '2020-10-25', 'Laguna', '08:00:00', 7),
 ('Jabee', '2024-05-08', 'Laguna', '6:00:00', 7);
 
