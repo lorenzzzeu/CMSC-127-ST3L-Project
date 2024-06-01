@@ -94,16 +94,16 @@ CREATE TABLE IF NOT EXISTS REVIEW (
 -- Inserting dummy data
 INSERT INTO USER (first_name, middle_name, last_name, birthday, age, email, password, displayed_name, type_of_food_establishment_owned, food_preference, is_owner, is_customer) 
 VALUES 
-('Juan', 'Dela Cruz', 'Santos', '1990-05-15', 31, 'juan@example.com', 'password123', 'JuanDC', 'Restaurant', NULL, 1, 0),
-('Maria', 'Luna', 'Reyes', '1985-09-20', 36, 'maria@example.com', 'password456', 'MariaL', 'Restaurant', NULL, 1, 0),
-('Antonio', 'Garcia', 'Ramos', '1982-07-10', 39, 'antonio@example.com', 'password789', 'Tony', NULL, 'Italian cuisine', 0, 1),
-('Elena', 'Cruz', 'Lopez', '1995-03-25', 26, 'elena@example.com', 'passwordabc', 'Ellie', NULL, 'Korean cuisine', 0, 1),
-('Pedro', NULL, 'Gonzales', '1998-11-08', 23, 'pedro@example.com', 'passworddef', 'Pedring', NULL, 'Chinese cuisine', 0, 1),
-('Lorenz', 'Gomez', 'Gabriel', '2004-02-14', 20, 'lorenz@example.com', 'passwordlg', 'Lorenz', 'Restaurant', NULL, 1, 0),
-('Dan Victor', NULL, 'Gapaz', '2003-04-20', 21, 'dan@example.com', 'passworddg', 'Dan', 'Fastfood', NULL, 1, 0),
-('Gian Carlo', NULL, 'Suarez', '2003-06-11', 20, 'gian@example.com', 'passwordgs', 'Gian', NULL, 'Korean cuisine', 0, 1),
-('Dirk', NULL, 'Ablanque', '2003-01-01', 21, 'dirk@example.com', 'passwordda', 'Dirk', NULL, 'Japanese cuisine', 0, 1),
-('Iska', 'Oble', 'Komsay', '2000-11-15', 23, 'iska@example.com', 'passwordik', 'IskaK', NULL, 'Filipino cuisine', 0, 1);
+('Juan', 'Dela Cruz', 'Santos', '1990-05-15', 31, 'juan@example.com', PASSWORD('password123'), 'JuanDC', 'Restaurant', NULL, 1, 0),
+('Maria', 'Luna', 'Reyes', '1985-09-20', 36, 'maria@example.com', PASSWORD('password456'), 'MariaL', 'Restaurant', NULL, 1, 0),
+('Antonio', 'Garcia', 'Ramos', '1982-07-10', 39, 'antonio@example.com', PASSWORD('password789'), 'Tony', NULL, 'Italian cuisine', 0, 1),
+('Elena', 'Cruz', 'Lopez', '1995-03-25', 26, 'elena@example.com', PASSWORD('passwordabc'), 'Ellie', NULL, 'Korean cuisine', 0, 1),
+('Pedro', NULL, 'Gonzales', '1998-11-08', 23, 'pedro@example.com', PASSWORD('passworddef'), 'Pedring', NULL, 'Chinese cuisine', 0, 1),
+('Lorenz', 'Gomez', 'Gabriel', '2004-02-14', 20, 'lorenz@example.com', PASSWORD('passwordlg'), 'Lorenz', 'Restaurant', NULL, 1, 0),
+('Dan Victor', NULL, 'Gapaz', '2003-04-20', 21, 'dan@example.com', PASSWORD('passworddg'), 'Dan', 'Fastfood', NULL, 1, 0),
+('Gian Carlo', NULL, 'Suarez', '2003-06-11', 20, 'gian@example.com', PASSWORD('passwordgs'), 'Gian', NULL, 'Korean cuisine', 0, 1),
+('Dirk', NULL, 'Ablanque', '2003-01-01', 21, 'dirk@example.com', PASSWORD('passwordda'), 'Dirk', NULL, 'Japanese cuisine', 0, 1),
+('Iska', 'Oble', 'Komsay', '2000-11-15', 23, 'iska@example.com', PASSWORD('passwordik'), 'IskaK', NULL, 'Filipino cuisine', 0, 1);
 
 INSERT INTO USER_ADDRESS (user_id, address)
 VALUES 
