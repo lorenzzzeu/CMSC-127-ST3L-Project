@@ -150,31 +150,40 @@ def delete_establishment(cur, user_id):
 # Search for an Establishment
 def search_establishment(cur):
     print("\n----------Search Establishment----------")
-    establishment_id = int(get_id("Enter Establishment ID: ", "establishment", "fetch", None, None, cur))
+    search_option = get_input("Search by [1] Establishment ID or [2] Establishment Name: ", "int", 1, 2, None, None)
 
-    query = "SELECT establishment_id, establishment_name, date_established, location, opening_hour, user_id FROM FOOD_ESTABLISHMENT WHERE establishment_id = %s"
-    cur.execute(query, (establishment_id,))
-    result = cur.fetchone()
+    if search_option == 1:
+        establishment_id = int(get_id("Enter Establishment ID: ", "establishment", "fetch", None, None, cur))
 
-    query_contact = "SELECT establishment_contact_number FROM FOOD_ESTABLISHMENT_CONTACT WHERE establishment_id = %s"
-    cur.execute(query_contact, (establishment_id,))
-    contact = cur.fetchone()
+        query = "SELECT establishment_id, establishment_name, date_established, location, opening_hour, user_id FROM FOOD_ESTABLISHMENT WHERE establishment_id = %s"
+        cur.execute(query, (establishment_id,))
+        result = cur.fetchone()
 
-    query_social = "SELECT social_media_link FROM FOOD_ESTABLISHMENT_SOCIAL WHERE establishment_id = %s"
-    cur.execute(query_social, (establishment_id,))
-    social = cur.fetchone()
+    elif search_option == 2:
+        establishment_name = get_input("Enter partial or full Establishment Name: ", "string", 1, 75, None, None)
+
+        query = "SELECT establishment_id, establishment_name, date_established, location, opening_hour, user_id FROM FOOD_ESTABLISHMENT WHERE establishment_name LIKE %s"
+        cur.execute(query, (f'%{establishment_name}%',))
+        result = cur.fetchall()
 
     if result:
-        print(f"\nEstablishment ID: {result[0]}")
-        print(f"Establishment Name: {result[1]}")
-        print(f"Date Established: {result[2]}")
-        print(f"Location: {result[3]}")
-        print(f"Opening Hour: {result[4]}")
-        print(f"User ID: {result[5]}")
-        print(f"Contact Number: {contact[0]}")
-        print(f"Social Media: {social[0]}")
+        if search_option == 1:
+            print(f"\nEstablishment ID: {result[0]}")
+            print(f"Establishment Name: {result[1]}")
+            print(f"Date Established: {result[2]}")
+            print(f"Location: {result[3]}")
+            print(f"Opening Hour: {result[4]}")
+            print(f"User ID: {result[5]}")
+        elif search_option == 2:
+            for establishment in result:
+                print(f"\nEstablishment ID: {establishment[0]}")
+                print(f"Establishment Name: {establishment[1]}")
+                print(f"Date Established: {establishment[2]}")
+                print(f"Location: {establishment[3]}")
+                print(f"Opening Hour: {establishment[4]}")
+                print(f"User ID: {establishment[5]}")
     else:
-        print("Establishment does not exist.")
+        print("No establishment found matching the search criteria.")
 
 # Update an establishment
 def update_establishment(cur, user_id):
