@@ -221,10 +221,15 @@ def display_all_food_items(cur):
 
         result = cur.fetchall()
 
-        for food_item in result:
-            print(f"\nFood ID: {food_item[0]}")
-            print(f"Food Name: {food_item[1]}")
-            print(f"Price: {food_item[2]}")
-            print(f"Food Type: {food_item[3]}")
-            print(f"User ID: {food_item[4]}")
-            print(f"Establishment ID: {food_item[5]}")    
+         # Check if there are no results and print a message
+        if not result:
+            print("No food items found for the given criteria.")
+        else:
+            for food_item in result:
+                print(f"\nFood ID: {food_item[0]}")
+                print(f"Food Name: {food_item[1]}")
+                print(f"Price: {food_item[2]}")
+                print(f"Food Type: {food_item[3]}")
+                print(f"User ID: {food_item[4]}")
+                print(f"Establishment ID: {food_item[5]}")
+  
