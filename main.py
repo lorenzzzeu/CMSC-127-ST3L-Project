@@ -135,7 +135,6 @@ cur.execute('''
         year YEAR,
         day INT (2),
         month INT (2),
-        average_rating INT (1),
         service INT (1),
         ambience  INT (1),
         cleanliness  INT (1),

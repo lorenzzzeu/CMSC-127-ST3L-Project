@@ -76,7 +76,6 @@ CREATE TABLE IF NOT EXISTS REVIEW (
     year YEAR,
     day INT (2),
     month INT (2),
-    average_rating INT (1),
     service INT (1),
     ambience  INT (1),
     cleanliness  INT (1),
@@ -190,10 +189,10 @@ VALUES
 ('ChickenSaya', 99.00, 'Chicken', 7, 10);
 
 -- Inserting dummy data into REVIEW table
-INSERT INTO REVIEW (comment, rating, content, year, day, month, average_rating, service, ambience, cleanliness, taste, texture, plating, classification, user_id, establishment_id, food_id)
+INSERT INTO REVIEW (comment, rating, content, year, day, month, service, ambience, cleanliness, taste, texture, plating, classification, user_id, establishment_id, food_id)
 VALUES 
-('Great food and service!', 5, 'The restaurant ambiance is cozy and inviting. Their dishes are delicious and well-prepared.', 2024, 25, 5, 5, 5, 4, 5, NULL, NULL, NULL, 'Food Establishment', 3, 1, NULL),
-('Average food', 3, 'The food was decent, noodles are a bit soggy.', 2024, 18, 5, 3, NULL, NULL, NULL, 3, 4, 3, 'Food Item', 4, NULL, 2),
-('Great place!', 4, 'The food was decent, but the service is great. The place was clean.', 2024, 10, 5, 4, 5, 5, 5, NULL, NULL, NULL, 'Food Establishment', 5, 3, NULL),
-('Disappointing experience', 2, 'The food was not up to expectations. Food is almost raw.', 2024, 5, 5, 2, NULL, NULL, NULL, 1, 2, 2, 'Food Item', 4, NULL, 4),
-('Fast and convenient', 4, 'Quick service and tasty food. Perfect for a lovingly meal.', 2024, 2, 5, 4, 4, 3, 4, NULL, NULL, NULL, 'Food Establishment', 5, 5, NULL);
+('Great food and service!', 5, 'The restaurant ambiance is cozy and inviting. Their dishes are delicious and well-prepared.', 2024, 25, 5, 5, 4, 5, NULL, NULL, NULL, 'Food Establishment', 3, 1, NULL),
+('Average food', 3, 'The food was decent, noodles are a bit soggy.', 2024, 18, 5, NULL, NULL, NULL, 3, 4, 3, 'Food Item', 4, NULL, 2),
+('Great place!', 4, 'The food was decent, but the service is great. The place was clean.', 2024, 10, 5, 5, 5, 5, NULL, NULL, NULL, 'Food Establishment', 5, 3, NULL),
+('Disappointing experience', 2, 'The food was not up to expectations. Food is almost raw.', 2024, 5, 5, NULL, NULL, NULL, 1, 2, 2, 'Food Item', 4, NULL, 4),
+('Fast and convenient', 4, 'Quick service and tasty food. Perfect for a lovingly meal.', 2024, 2, 5, 4, 3, 4, NULL, NULL, NULL, 'Food Establishment', 5, 5, NULL);
