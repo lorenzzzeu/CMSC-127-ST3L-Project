@@ -200,8 +200,8 @@ def display_all_food_items(cur):
             cur.execute(query, (food_type,))
 
         elif choice == 5:
-            search_price_min = float(get_input("Enter minimum food item price: ", "int", 1, 10, None, None))
-            search_price_max = float(get_input("Enter maximum food item price: ", "int", 1, 999, None, None))
+            search_price_min = float(get_input("Enter minimum food item price: ", "int", 1, 999999, None, None))
+            search_price_max = float(get_input("Enter maximum food item price: ", "int", 1, 999999, None, None))
 
             query_price = "SELECT * FROM FOOD_ITEM WHERE price BETWEEN %s AND %s"
             price_values = (search_price_min, search_price_max)
@@ -210,8 +210,8 @@ def display_all_food_items(cur):
 
         elif choice == 6:
             food_type = get_input("Enter food type: ", "string", 1, 100, None, None)
-            search_price_min = float(get_input("Enter minimum food item price: ", "int", 1, 10, None, None))
-            search_price_max = float(get_input("Enter maximum food item price: ", "int", 1, 999, None, None))
+            search_price_min = float(get_input("Enter minimum food item price: ", "int", 1, 999999, None, None))
+            search_price_max = float(get_input("Enter maximum food item price: ", "int", 1, 999999, None, None))
             query = "SELECT * FROM FOOD_ITEM WHERE price BETWEEN %s AND %s AND type = %s"
             values = (search_price_min, search_price_max, food_type)
             cur.execute(query, values)
