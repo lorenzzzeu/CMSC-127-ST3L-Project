@@ -244,10 +244,13 @@ def display_all_establishments(cur):
 
     result = cur.fetchall()
 
-    for establishment in result:
-        print(f"\nEstablishment ID: {establishment[0]}")
-        print(f"Establishment Name: {establishment[1]}")
-        print(f"Date Established: {establishment[2]}")
-        print(f"Location: {establishment[3]}")
-        print(f"Opening Hour: {establishment[4]}")
-        print(f"User ID: {establishment[5]}")
+    if not result:
+        print("No food establishments found for the given criteria.")
+    else:
+        for establishment in result:
+            print(f"\nEstablishment ID: {establishment[0]}")
+            print(f"Establishment Name: {establishment[1]}")
+            print(f"Date Established: {establishment[2]}")
+            print(f"Location: {establishment[3]}")
+            print(f"Opening Hour: {establishment[4]}")
+            print(f"User ID: {establishment[5]}")
