@@ -88,6 +88,14 @@ def get_input (msg, type, min, max, optional_msg, optional_rev):
         return valid_date
       except ValueError:
         print("Invalid date!")
+
+    elif type == "hour":
+      string_input = input(msg)
+      try:
+        valid_format = datetime.strptime(string_input, "%H:%M:%S").time()
+        return valid_format
+      except ValueError:
+        print("Invalid format!")
     
     elif type == "int":
       try:

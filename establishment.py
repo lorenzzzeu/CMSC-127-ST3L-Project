@@ -72,7 +72,7 @@ def add_establishment(cur, user_id):
     establishment_name = get_input("Enter Establishment Name: ", "string", 1, 75, None, None)
     date_established = get_input("Enter Date Established (YYYY-MM-DD): ", "date", 1, 75, None, None)
     location = get_input("Enter Location: ", "string", 1, 75, None, None)
-    opening_hour = get_input("Enter Opening Hour: ", "string", 1, 75, None, None)
+    opening_hour = get_input("Enter Opening Hour (HH:MM:SS): ", "hour", 1, 8, None, None)
 
     # user_id = get_id("Enter User ID: ", "user", "fetch",None, None, cur)
     # kahit wala na rin siguro 'to kasi nakuha naman na yung user id sa una
@@ -208,7 +208,7 @@ def update_establishment(cur, user_id):
             establishment_name = get_input("Enter new Establishment Name: ", "string", 1, 75, None, None)
             date_established = get_input("Enter new Date Established (YYYY-MM-DD): ", "date", 1, 75, None, None)
             location = get_input("Enter new Location: ", "string", 1, 75, None, None)
-            opening_hour = get_input("Enter new Opening Hour: ", "string", 1, 75, None, None)
+            opening_hour = get_input("Enter new Opening Hour: ", "hour", 1, 75, None, None)
             contact = get_input("Enter new Contact Number: ", "string", 1, 75, None, None)
             social = get_input("Enter new Social Media: ", "string", 1, 200, None, None)
 
