@@ -84,7 +84,6 @@ def add_review(cur, user_id):
         service = int(get_input("Enter service rating (1-5): ", "int", 1, 5, None, None))
         ambience = int(get_input("Enter ambience rating (1-5): ", "int", 1, 5, None, None))
         cleanliness = int(get_input("Enter cleanliness rating (1-5): ", "int", 1, 5, None, None))
-        plating = int(get_input("Enter plating rating (1-5): ", "int", 1, 5, None, None))
         classification = "Food Establishment"
 
     elif choice == 2:
@@ -94,6 +93,7 @@ def add_review(cur, user_id):
         rating = int(get_input("Enter rating (1-5): ", "int", 1, 5, None, None))
         taste = int(get_input("Enter taste rating (1-5): ", "int", 1, 5, None, None))
         texture = int(get_input("Enter texture rating (1-5): ", "int", 1, 5, None, None))
+        plating = int(get_input("Enter plating rating (1-5): ", "int", 1, 5, None, None))
         classification = "Food Item"
         
     query = "INSERT INTO REVIEW (comment, rating, content, year, month, day, service, ambience, cleanliness, taste, texture, plating, classification, user_id, establishment_id, food_id) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -189,7 +189,6 @@ def update_review(cur, user_id): # lagyan ng checker if yung user na yun yung ma
             service = int(get_input("Enter new service rating (1-5): ", "int", 1, 5, None, None))
             ambience = int(get_input("Enter new ambience rating (1-5): ", "int", 1, 5, None, None))
             cleanliness = int(get_input("Enter new cleanliness rating (1-5): ", "int", 1, 5, None, None))
-            plating = int(get_input("Enter new plating rating (1-5): ", "int", 1, 5, None, None))
 
         elif classification == "Food Item":
             comment = get_input("Enter new comment: ", "string", 1, 250, None, None)
@@ -197,6 +196,7 @@ def update_review(cur, user_id): # lagyan ng checker if yung user na yun yung ma
             rating = int(get_input("Enter new rating (1-5): ", "int", 1, 5, None, None))
             taste = int(get_input("Enter new taste rating (1-5): ", "int", 1, 5, None, None))
             texture = int(get_input("Enter new texture rating (1-5): ", "int", 1, 5, None, None))
+            plating = int(get_input("Enter new plating rating (1-5): ", "int", 1, 5, None, None))
 
         # user_id = int(get_id("Enter new user ID: ", "user", "fetch", None, None, cur)) #hindi ata to kailangan(?) since ung user na nag input lng non ung pwede magpalit. or dapat pala may validation dito to check if yung user na nag bigay ng revview ang maguupdate
 
