@@ -223,35 +223,6 @@ def update_establishment(cur, user_id):
             break
     return
         
-# # View all establishments
-# def display_all_establishments(cur):
-#     print("\n----------Display All Establishments----------")
-#     print("[1] View all establishments")
-#     print("[2] View all establishments with a high average rating (rating >= 4)")
-#     choice = get_input("\nEnter your choice: ", "int", 1, 2, None, None)
-
-#     if choice == 1:
-#         query = "SELECT fe.establishment_id, fe.establishment_name, fe.date_established, fe.location, fe.opening_hour, fe.user_id, cn.contact_number FROM FOOD_ESTABLISHMENT fe LEFT JOIN CONTACT_NUMBERS cn ON fe.establishment_id = cn.establishment_id ORDER BY fe.establishment_id"
-#         cur.execute(query)
-
-#     elif choice == 2:
-#         query = "SELECT * FROM FOOD_ESTABLISHMENT WHERE establishment_id IN (SELECT establishment_id FROM REVIEW GROUP BY establishment_id HAVING AVG(rating) >= 4)"
-#         cur.execute(query)
-
-#     result = cur.fetchall()
-#     print(result)
-
-#     if not result:
-#         print("No food establishments found for the given criteria.")
-#     else:
-#         for establishment in result:
-#             print(f"\nEstablishment ID: {establishment[0]}")
-#             print(f"Establishment Name: {establishment[1]}")
-#             print(f"Date Established: {establishment[2]}")
-#             print(f"Location: {establishment[3]}")
-#             print(f"Opening Hour: {establishment[4]}")
-#             print(f"User ID: {establishment[5]}")
-#             # print(f"Contact Number: {establishment[6]}")
 
 # View all establishments
 def display_all_establishments(cur):
@@ -262,22 +233,26 @@ def display_all_establishments(cur):
 
     if choice == 1:
         query = """
-        SELECT fe.establishment_id, fe.establishment_name, fe.date_established, fe.location, fe.opening_hour, fe.user_id, cn.establishment_contact_number, AVG(rv.rating) as avg_rating
+        SELECT fe.establishment_id, fe.establishment_name, fe.date_established, fe.location, fe.opening_hour, fe.user_id, 
+               cn.establishment_contact_number, sm.social_media_link, AVG(rv.rating) as avg_rating
         FROM FOOD_ESTABLISHMENT fe
-        LEFT JOIN food_establishment_contact cn ON fe.establishment_id = cn.establishment_id
+        LEFT JOIN FOOD_ESTABLISHMENT_CONTACT cn ON fe.establishment_id = cn.establishment_id
+        LEFT JOIN FOOD_ESTABLISHMENT_SOCIAL sm ON fe.establishment_id = sm.establishment_id
         LEFT JOIN REVIEW rv ON fe.establishment_id = rv.establishment_id
-        GROUP BY fe.establishment_id, cn.establishment_contact_number
+        GROUP BY fe.establishment_id, cn.establishment_contact_number, sm.social_media_link
         ORDER BY fe.establishment_id
         """
         cur.execute(query)
 
     elif choice == 2:
         query = """
-        SELECT fe.establishment_id, fe.establishment_name, fe.date_established, fe.location, fe.opening_hour, fe.user_id, cn.establishment_contact_number, AVG(rv.rating) as avg_rating
+        SELECT fe.establishment_id, fe.establishment_name, fe.date_established, fe.location, fe.opening_hour, fe.user_id, 
+               cn.establishment_contact_number, sm.social_media_link, AVG(rv.rating) as avg_rating
         FROM FOOD_ESTABLISHMENT fe
-        LEFT JOIN CONTACT_NUMBERS cn ON fe.establishment_id = cn.establishment_id
+        LEFT JOIN FOOD_ESTABLISHMENT_CONTACT cn ON fe.establishment_id = cn.establishment_id
+        LEFT JOIN FOOD_ESTABLISHMENT_SOCIAL sm ON fe.establishment_id = sm.establishment_id
         LEFT JOIN REVIEW rv ON fe.establishment_id = rv.establishment_id
-        GROUP BY fe.establishment_id, cn.establishment_contact_number
+        GROUP BY fe.establishment_id, cn.establishment_contact_number, sm.social_media_link
         HAVING avg_rating >= 4
         ORDER BY fe.establishment_id
         """
@@ -298,11 +273,14 @@ def display_all_establishments(cur):
                     "location": establishment[3],
                     "opening_hour": establishment[4],
                     "user_id": establishment[5],
-                    "establishment_contact_number": [],
-                    "avg_rating": establishment[7]
+                    "establishment_contact_number": set(),
+                    "social_media_links": set(),
+                    "avg_rating": establishment[8]
                 }
             if establishment[6]:  # Check if contact number is not None
-                establishments[est_id]["establishment_contact_number"].append(establishment[6])
+                establishments[est_id]["establishment_contact_number"].add(establishment[6])
+            if establishment[7]:  # Check if social media link is not None
+                establishments[est_id]["social_media_links"].add(establishment[7])
 
         for est_id, details in establishments.items():
             print(f"\nEstablishment ID: {est_id}")
@@ -310,12 +288,19 @@ def display_all_establishments(cur):
             print(f"Date Established: {details['date_established']}")
             print(f"Location: {details['location']}")
             print(f"Opening Hour: {details['opening_hour']}")
-            print(f"User ID: {details['user_id']}")
             avg_rating = details['avg_rating']
             if avg_rating is not None:
                 print(f"Average Rating: {avg_rating:.2f}")
             else:
                 print("Average Rating: No reviews yet")
             print("Contact Numbers:")
+            if not details['establishment_contact_number']:
+                print(" No contact numbers available")
             for index, number in enumerate(details['establishment_contact_number'], start=1):
                 print(f" {index}. {number}")
+            print("Social Media Links:")
+            if not details['social_media_links']:
+                print(" No social media links available")
+            for index, link in enumerate(details['social_media_links'], start=1):
+                print(f" {index}. {link}")
+            print(f"User ID: {details['user_id']}")
