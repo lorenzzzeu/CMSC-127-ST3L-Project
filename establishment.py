@@ -67,51 +67,36 @@ def establishment_menu(cur, user_id):
 def add_establishment(cur, user_id):
     print("\n----------Add Establishment----------")
 
-    # establishment_id = get_id("Enter Establishment ID: ", "establishment", "add", None, None, cur) 
-    # kahit wala na siguro 'to para laging unique yung id
     establishment_name = get_input("Enter Establishment Name: ", "string", 1, 75, None, None)
     date_established = get_input("Enter Date Established (YYYY-MM-DD): ", "date", 1, 75, None, None)
     location = get_input("Enter Location: ", "string", 1, 75, None, None)
     opening_hour = get_input("Enter Opening Hour (HH:MM:SS): ", "hour", 1, 8, None, None)
 
-    # user_id = get_id("Enter User ID: ", "user", "fetch",None, None, cur)
-    # kahit wala na rin siguro 'to kasi nakuha naman na yung user id sa una
-    
-    contact = get_input("Enter Contact Number: ", "string", 1, 75, None, None)
-    social = get_input("Enter Social Media: ", "string", 1, 200, None, None)
-
-    cur.execute("SELECT MAX(establishment_id) FROM FOOD_ESTABLISHMENT")
-    new_increment = cur.fetchone()[0]
-
-    alter_query = "ALTER TABLE FOOD_ESTABLISHMENT AUTO_INCREMENT = %s"
-    cur.execute(alter_query, (new_increment,))
-
-    query = "INSERT INTO FOOD_ESTABLISHMENT (establishment_name, date_established, location, opening_hour,user_id) VALUES (%s, %s, %s, %s, %s)"
+    # Insert into FOOD_ESTABLISHMENT table
+    query = "INSERT INTO FOOD_ESTABLISHMENT (establishment_name, date_established, location, opening_hour, user_id) VALUES (%s, %s, %s, %s, %s)"
     values = (establishment_name, date_established, location, opening_hour, user_id)
-    cur.execute(query, values) 
+    cur.execute(query, values)
     establishment_id = cur.lastrowid
 
-    # For Contact
-    cur.execute("SELECT MAX(establishment_contact_id) FROM FOOD_ESTABLISHMENT_CONTACT")
-    new_contact_increment = cur.fetchone()[0]
+    # For Contact Numbers
+    while True:
+        contact = get_input("Enter Contact Number (or type 'done' to finish): ", "string", 1, 75, None, None)
+        if contact.lower() == 'done':
+            break
+        query_for_contact = "INSERT INTO FOOD_ESTABLISHMENT_CONTACT (establishment_id, establishment_contact_number) VALUES (%s, %s)"
+        values_for_contact = (establishment_id, contact)
+        cur.execute(query_for_contact, values_for_contact)
 
-    alter_query = "ALTER TABLE FOOD_ESTABLISHMENT_CONTACT AUTO_INCREMENT = %s"
-    cur.execute(alter_query, (new_contact_increment,))
+    # For Social Media Links
+    while True:
+        social = get_input("Enter Social Media Link (or type 'done' to finish): ", "string", 1, 200, None, None)
+        if social.lower() == 'done':
+            break
+        query_for_social = "INSERT INTO FOOD_ESTABLISHMENT_SOCIAL (establishment_id, social_media_link) VALUES (%s, %s)"
+        values_for_social = (establishment_id, social)
+        cur.execute(query_for_social, values_for_social)
 
-    query_for_contact = "INSERT INTO FOOD_ESTABLISHMENT_CONTACT (establishment_id, establishment_contact_number) VALUES (%s, %s)"
-    values_for_contact = (establishment_id, contact)
-    cur.execute(query_for_contact, values_for_contact)
-
-    # For Social
-    cur.execute("SELECT MAX(establishment_social_id) FROM FOOD_ESTABLISHMENT_SOCIAL")
-    new_social_increment = cur.fetchone()[0]
-
-    alter_query = "ALTER TABLE FOOD_ESTABLISHMENT_SOCIAL AUTO_INCREMENT = %s"
-    cur.execute(alter_query, (new_social_increment,))
-
-    query_for_social = "INSERT INTO FOOD_ESTABLISHMENT_SOCIAL (establishment_id, social_media_link) VALUES (%s, %s)"   
-    values_for_social = (establishment_id, social)
-    cur.execute(query_for_social, values_for_social)
+    print("Establishment added successfully.")
 
 # Delete an Establishment
 def delete_establishment(cur, user_id):
@@ -155,14 +140,14 @@ def search_establishment(cur):
     if search_option == 1:
         establishment_id = int(get_id("Enter Establishment ID: ", "establishment", "fetch", None, None, cur))
 
-        query = "SELECT establishment_id, establishment_name, date_established, location, opening_hour, user_id FROM FOOD_ESTABLISHMENT WHERE establishment_id = %s"
+        query = "SELECT establishment_id, establishment_name, date_established, location, opening_hour, user_id,  (select establishment_contact_number from food_establishment_contact where establishment_id=%s) as contact_number  FROM FOOD_ESTABLISHMENT WHERE establishment_id = %s"
         cur.execute(query, (establishment_id,))
         result = cur.fetchone()
 
     elif search_option == 2:
         establishment_name = get_input("Enter partial or full Establishment Name: ", "string", 1, 75, None, None)
 
-        query = "SELECT establishment_id, establishment_name, date_established, location, opening_hour, user_id FROM FOOD_ESTABLISHMENT WHERE establishment_name LIKE %s"
+        query = "SELECT establishment_id, establishment_name, date_established, location, opening_hour, user_id,  (select establishment_contact_number from food_establishment_contact where establishment_id=%s) as contact_number FROM FOOD_ESTABLISHMENT WHERE establishment_name LIKE %s"
         cur.execute(query, (f'%{establishment_name}%',))
         result = cur.fetchall()
 
@@ -174,6 +159,7 @@ def search_establishment(cur):
             print(f"Location: {result[3]}")
             print(f"Opening Hour: {result[4]}")
             print(f"User ID: {result[5]}")
+            print(f"Contact Number: {result[6]}")
         elif search_option == 2:
             for establishment in result:
                 print(f"\nEstablishment ID: {establishment[0]}")
@@ -182,6 +168,7 @@ def search_establishment(cur):
                 print(f"Location: {establishment[3]}")
                 print(f"Opening Hour: {establishment[4]}")
                 print(f"User ID: {establishment[5]}")
+                print(f"Contact Number: {result[6]}")
     else:
         print("No establishment found matching the search criteria.")
 
@@ -236,6 +223,36 @@ def update_establishment(cur, user_id):
             break
     return
         
+# # View all establishments
+# def display_all_establishments(cur):
+#     print("\n----------Display All Establishments----------")
+#     print("[1] View all establishments")
+#     print("[2] View all establishments with a high average rating (rating >= 4)")
+#     choice = get_input("\nEnter your choice: ", "int", 1, 2, None, None)
+
+#     if choice == 1:
+#         query = "SELECT fe.establishment_id, fe.establishment_name, fe.date_established, fe.location, fe.opening_hour, fe.user_id, cn.contact_number FROM FOOD_ESTABLISHMENT fe LEFT JOIN CONTACT_NUMBERS cn ON fe.establishment_id = cn.establishment_id ORDER BY fe.establishment_id"
+#         cur.execute(query)
+
+#     elif choice == 2:
+#         query = "SELECT * FROM FOOD_ESTABLISHMENT WHERE establishment_id IN (SELECT establishment_id FROM REVIEW GROUP BY establishment_id HAVING AVG(rating) >= 4)"
+#         cur.execute(query)
+
+#     result = cur.fetchall()
+#     print(result)
+
+#     if not result:
+#         print("No food establishments found for the given criteria.")
+#     else:
+#         for establishment in result:
+#             print(f"\nEstablishment ID: {establishment[0]}")
+#             print(f"Establishment Name: {establishment[1]}")
+#             print(f"Date Established: {establishment[2]}")
+#             print(f"Location: {establishment[3]}")
+#             print(f"Opening Hour: {establishment[4]}")
+#             print(f"User ID: {establishment[5]}")
+#             # print(f"Contact Number: {establishment[6]}")
+
 # View all establishments
 def display_all_establishments(cur):
     print("\n----------Display All Establishments----------")
@@ -244,11 +261,26 @@ def display_all_establishments(cur):
     choice = get_input("\nEnter your choice: ", "int", 1, 2, None, None)
 
     if choice == 1:
-        query = "SELECT establishment_id, establishment_name, date_established, location, opening_hour, user_id FROM FOOD_ESTABLISHMENT"
+        query = """
+        SELECT fe.establishment_id, fe.establishment_name, fe.date_established, fe.location, fe.opening_hour, fe.user_id, cn.establishment_contact_number, AVG(rv.rating) as avg_rating
+        FROM FOOD_ESTABLISHMENT fe
+        LEFT JOIN food_establishment_contact cn ON fe.establishment_id = cn.establishment_id
+        LEFT JOIN REVIEW rv ON fe.establishment_id = rv.establishment_id
+        GROUP BY fe.establishment_id, cn.establishment_contact_number
+        ORDER BY fe.establishment_id
+        """
         cur.execute(query)
 
     elif choice == 2:
-        query = "SELECT * FROM FOOD_ESTABLISHMENT WHERE establishment_id IN (SELECT establishment_id FROM REVIEW GROUP BY establishment_id HAVING AVG(rating) >= 4)"
+        query = """
+        SELECT fe.establishment_id, fe.establishment_name, fe.date_established, fe.location, fe.opening_hour, fe.user_id, cn.establishment_contact_number, AVG(rv.rating) as avg_rating
+        FROM FOOD_ESTABLISHMENT fe
+        LEFT JOIN CONTACT_NUMBERS cn ON fe.establishment_id = cn.establishment_id
+        LEFT JOIN REVIEW rv ON fe.establishment_id = rv.establishment_id
+        GROUP BY fe.establishment_id, cn.establishment_contact_number
+        HAVING avg_rating >= 4
+        ORDER BY fe.establishment_id
+        """
         cur.execute(query)
 
     result = cur.fetchall()
@@ -256,10 +288,34 @@ def display_all_establishments(cur):
     if not result:
         print("No food establishments found for the given criteria.")
     else:
+        establishments = {}
         for establishment in result:
-            print(f"\nEstablishment ID: {establishment[0]}")
-            print(f"Establishment Name: {establishment[1]}")
-            print(f"Date Established: {establishment[2]}")
-            print(f"Location: {establishment[3]}")
-            print(f"Opening Hour: {establishment[4]}")
-            print(f"User ID: {establishment[5]}")
+            est_id = establishment[0]
+            if est_id not in establishments:
+                establishments[est_id] = {
+                    "name": establishment[1],
+                    "date_established": establishment[2],
+                    "location": establishment[3],
+                    "opening_hour": establishment[4],
+                    "user_id": establishment[5],
+                    "establishment_contact_number": [],
+                    "avg_rating": establishment[7]
+                }
+            if establishment[6]:  # Check if contact number is not None
+                establishments[est_id]["establishment_contact_number"].append(establishment[6])
+
+        for est_id, details in establishments.items():
+            print(f"\nEstablishment ID: {est_id}")
+            print(f"Establishment Name: {details['name']}")
+            print(f"Date Established: {details['date_established']}")
+            print(f"Location: {details['location']}")
+            print(f"Opening Hour: {details['opening_hour']}")
+            print(f"User ID: {details['user_id']}")
+            avg_rating = details['avg_rating']
+            if avg_rating is not None:
+                print(f"Average Rating: {avg_rating:.2f}")
+            else:
+                print("Average Rating: No reviews yet")
+            print("Contact Numbers:")
+            for index, number in enumerate(details['establishment_contact_number'], start=1):
+                print(f" {index}. {number}")
