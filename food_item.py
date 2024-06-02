@@ -151,6 +151,7 @@ def update_food_item(cur, user_id): # Need pa lagyan ng checker if yung user na 
     return
 
 # Display food items according to different choices
+# Display food items according to different choices
 def display_all_food_items(cur):
     while True:
         print("\n----------Display All Food Items----------")
@@ -166,70 +167,185 @@ def display_all_food_items(cur):
 
         if choice == 1:
             establishment_id = get_id("Enter establishment ID: ", "establishment", "fetch", None, None, cur)
-            query = f"SELECT * FROM FOOD_ITEM WHERE establishment_id = {establishment_id}"
-            cur.execute(query)
+            establishment_name_query = "SELECT establishment_name FROM FOOD_ESTABLISHMENT WHERE establishment_id = %s"
+            cur.execute(establishment_name_query, (establishment_id,))
+            establishment_name = cur.fetchone()[0]
+            
+
+            query = "SELECT * FROM FOOD_ITEM WHERE establishment_id = %s"
+            cur.execute(query, (establishment_id,))
+
+            result = cur.fetchall()
+
+            # Check if there are no results and print a message
+            if not result:
+                print("No food items found for the given criteria.")
+            else:
+                print(f"\nEstablishment ID: {establishment_id}")
+                print(f"Establishment Name: {establishment_name}")
+                for food_item in result:
+                    print(f"\nFood ID: {food_item[0]}")
+                    print(f"Food Name: {food_item[1]}")
+                    print(f"Price: {food_item[2]}")
+                    print(f"Food Type: {food_item[3]}")
+                    print(f"User ID: {food_item[4]}")
 
         elif choice == 2:
             establishment_id = get_id("Enter establishment ID: ", "establishment", "fetch", None, None, cur)
             food_type = get_input("Enter food type: ", "string", 1, 100, None, None)
+
+            establishment_name_query = "SELECT establishment_name FROM FOOD_ESTABLISHMENT WHERE establishment_id = %s"
+            cur.execute(establishment_name_query, (establishment_id,))
+            establishment_name = cur.fetchone()[0]
+            
+
             query = "SELECT * FROM FOOD_ITEM WHERE establishment_id = %s AND type = %s"
-            values = (establishment_id, food_type)
-            cur.execute(query, values)
+            cur.execute(query, (establishment_id, food_type))
+
+            result = cur.fetchall()
+
+             # Check if there are no results and print a message
+            if not result:
+                print("No food items found for the given criteria.")
+            else:
+                print(f"\nEstablishment ID: {establishment_id}")
+                print(f"Establishment Name: {establishment_name}")
+                print(f"Food Type: {food_type}")
+                for food_item in result:
+                    print(f"\nFood ID: {food_item[0]}")
+                    print(f"Food Name: {food_item[1]}")
+                    print(f"Price: {food_item[2]}")
+                    print(f"User ID: {food_item[4]}")
 
         elif choice == 3:
-            while True:
-                sort = get_input("\nSort By Price (Descending or Ascending): ", "string", 1, 100, None, None)
+            sort = get_input("\nSort By Price (Descending or Ascending): ", "string", 1, 100, None, None)
+            establishment_id = get_id("Enter establishment ID: ", "establishment", "fetch", None, None, cur)
 
-                establishment_id = get_id("Enter establishment ID: ", "establishment", "fetch", None, None, cur)
+            establishment_name_query = "SELECT establishment_name FROM FOOD_ESTABLISHMENT WHERE establishment_id = %s"
+            cur.execute(establishment_name_query, (establishment_id,))
+            establishment_name = cur.fetchone()[0]
+            
 
-                if sort.lower() == "ascending":
-                    query = "SELECT * FROM FOOD_ITEM WHERE establishment_id = %s ORDER BY price ASC"
-                elif sort.lower() == "descending":
-                    query = "SELECT * FROM FOOD_ITEM WHERE establishment_id = %s ORDER BY price DESC"
-                else:
-                    print("Invalid Input")
-                    continue
-                    
-                cur.execute(query, (establishment_id,))
+            if sort.lower() == "ascending":
+                query = "SELECT * FROM FOOD_ITEM WHERE establishment_id = %s ORDER BY price ASC"
+            elif sort.lower() == "descending":
+                query = "SELECT * FROM FOOD_ITEM WHERE establishment_id = %s ORDER BY price DESC"
+            cur.execute(query, (establishment_id,))
 
-                break
+            result = cur.fetchall()
+
+             # Check if there are no results and print a message
+            if not result:
+                print("No food items found for the given criteria.")
+            else:
+                print(f"\nEstablishment ID: {establishment_id}")
+                print(f"Establishment Name: {establishment_name}")
+                print(f"Sort Type: {sort}")
+                for food_item in result:
+                    print(f"\nFood ID: {food_item[0]}")
+                    print(f"Food Name: {food_item[1]}")
+                    print(f"Price: {food_item[2]}")
+                    print(f"Food Type: {food_item[3]}")
+                    print(f"User ID: {food_item[4]}")
 
         elif choice == 4:
             food_type = get_input("Enter food type: ", "string", 1, 100, None, None)
-            query = "SELECT * FROM FOOD_ITEM WHERE type = %s"
+
+            establishment_query = "SELECT establishment_id, establishment_name FROM FOOD_ESTABLISHMENT"
+            cur.execute(establishment_query)
+            establishments = {row[0]: row[1] for row in cur.fetchall()}
+
+
+            query = "SELECT * FROM FOOD_ITEM WHERE type = %s ORDER BY establishment_id"
             cur.execute(query, (food_type,))
+            result = cur.fetchall()
+            current_establishment_id = None
+            
+
+            if not result:
+                print("No food items found for the given criteria.")
+            else:
+                print(f"\nFood Type: {food_type}")
+
+                for food_item in result:
+
+                    if food_item[5] != current_establishment_id:
+                        current_establishment_id = food_item[5]
+                        print('-'*50)
+                        print(f"\nEstablishment ID: {current_establishment_id}")
+                        print(f"Establishment Name: {establishments[current_establishment_id]}")
+
+                    
+                    print(f"\nFood ID: {food_item[0]}")
+                    print(f"Food Name: {food_item[1]}")
+                    print(f"Price: {food_item[2]}")
+                    print(f"User ID: {food_item[4]}")
+
 
         elif choice == 5:
+            establishment_id = get_id("Enter establishment ID: ", "establishment", "fetch", None, None, cur)
+            establishment_name_query = "SELECT establishment_name FROM FOOD_ESTABLISHMENT WHERE establishment_id = %s"
+            cur.execute(establishment_name_query, (establishment_id,))
+            establishment_name = cur.fetchone()[0]
+
             search_price_min = float(get_input("Enter minimum food item price: ", "int", 1, 999999, None, None))
             search_price_max = float(get_input("Enter maximum food item price: ", "int", 1, 999999, None, None))
 
-            query_price = "SELECT * FROM FOOD_ITEM WHERE price BETWEEN %s AND %s"
+            query_price = "SELECT * FROM FOOD_ITEM WHERE price BETWEEN %s AND %s ORDER BY price ASC"
             price_values = (search_price_min, search_price_max)
-            
             cur.execute(query_price, price_values)
 
+            result = cur.fetchall()
+
+            # Check if there are no results and print a message
+            if not result:
+                print("No food items found for the given criteria.")
+            else:
+                for food_item in result:
+                    print(f"\nFood ID: {food_item[0]}")
+                    print(f"Food Name: {food_item[1]}")
+                    print(f"Price: {food_item[2]}")
+                    print(f"Food Type: {food_item[3]}")
+                    print(f"User ID: {food_item[4]}")
+                    print(f"Establishment ID: {food_item[5]}")
+                    print(f"Establishment Name: {establishment_name}")
+
         elif choice == 6:
+            establishment_id = get_id("Enter establishment ID: ", "establishment", "fetch", None, None, cur)
+            establishment_name_query = "SELECT establishment_name FROM FOOD_ESTABLISHMENT WHERE establishment_id = %s"
+            cur.execute(establishment_name_query, (establishment_id,))
+            establishment_name = cur.fetchone()[0]
+            
             food_type = get_input("Enter food type: ", "string", 1, 100, None, None)
             search_price_min = float(get_input("Enter minimum food item price: ", "int", 1, 999999, None, None))
             search_price_max = float(get_input("Enter maximum food item price: ", "int", 1, 999999, None, None))
-            query = "SELECT * FROM FOOD_ITEM WHERE price BETWEEN %s AND %s AND type = %s"
+
+            query = """
+                SELECT * FROM FOOD_ITEM 
+                WHERE price BETWEEN %s AND %s AND type = %s 
+                ORDER BY price ASC
+            """
             values = (search_price_min, search_price_max, food_type)
             cur.execute(query, values)
 
+            result = cur.fetchall()
+
+            # Check if there are no results and print a message
+            if not result:
+                print("No food items found for the given criteria.")
+            else:
+                for food_item in result:
+                    print(f"\nFood ID: {food_item[0]}")
+                    print(f"Food Name: {food_item[1]}")
+                    print(f"Price: {food_item[2]}")
+                    print(f"Food Type: {food_item[3]}")
+                    print(f"User ID: {food_item[4]}")
+                    print(f"Establishment ID: {food_item[5]}")
+                    print(f"Establishment Name: {establishment_name}")
+
         elif choice == 0:
             return
+        
 
-        result = cur.fetchall()
 
-         # Check if there are no results and print a message
-        if not result:
-            print("No food items found for the given criteria.")
-        else:
-            for food_item in result:
-                print(f"\nFood ID: {food_item[0]}")
-                print(f"Food Name: {food_item[1]}")
-                print(f"Price: {food_item[2]}")
-                print(f"Food Type: {food_item[3]}")
-                print(f"User ID: {food_item[4]}")
-                print(f"Establishment ID: {food_item[5]}")
-  
+        
