@@ -89,6 +89,13 @@ def get_input (msg, type, min, max, optional_msg, optional_rev):
       except ValueError:
         print("Invalid date!")
 
+    elif type == "contact":
+      contact = input(msg)
+      if (contact.startswith("09") and len(contact) == 11 and contact.isdigit()):
+        return contact
+      else:
+        print("Invalid contact number")
+
     elif type == "hour":
       string_input = input(msg)
       try:
