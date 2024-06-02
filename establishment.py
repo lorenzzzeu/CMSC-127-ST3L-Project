@@ -7,12 +7,12 @@ def establishment_menu(cur, user_id):
     print("\nFood Establishment and Food Review System")
 
     #check if user is an owner
-    query = "SELECT is_owner FROM User WHERE user_id = %s"
+    query = "SELECT is_owner, is_customer FROM User WHERE user_id = %s"
     cur.execute(query, (user_id,))
     
-    is_owner = cur.fetchone()[0]
+    userType = cur.fetchone()
 
-    if (is_owner) == 1:
+    if ((userType[0] == 1 and userType[1] == 1) or userType[0] == 1):
         while True:
             print(f"\n----------Establishment----------")
             print("[1] Add an Establishment")
@@ -72,6 +72,15 @@ def add_establishment(cur, user_id):
     location = get_input("Enter Location: ", "string", 1, 75, None, None)
     opening_hour = get_input("Enter Opening Hour (HH:MM:SS): ", "hour", 1, 8, None, None)
 
+    contact = None
+    social = None
+
+    cur.execute("SELECT MAX(establishment_id) FROM FOOD_ESTABLISHMENT")
+    new_increment = cur.fetchone()[0]
+
+    alter_query = "ALTER TABLE FOOD_ESTABLISHMENT AUTO_INCREMENT = %s"
+    cur.execute(alter_query, (new_increment,))
+
     # Insert into FOOD_ESTABLISHMENT table
     query = "INSERT INTO FOOD_ESTABLISHMENT (establishment_name, date_established, location, opening_hour, user_id) VALUES (%s, %s, %s, %s, %s)"
     values = (establishment_name, date_established, location, opening_hour, user_id)
@@ -79,24 +88,49 @@ def add_establishment(cur, user_id):
     establishment_id = cur.lastrowid
 
     # For Contact Numbers
-    while True:
-        contact = get_input("Enter Contact Number (or type 'done' to finish): ", "string", 1, 75, None, None)
-        if contact.lower() == 'done':
-            break
-        query_for_contact = "INSERT INTO FOOD_ESTABLISHMENT_CONTACT (establishment_id, establishment_contact_number) VALUES (%s, %s)"
-        values_for_contact = (establishment_id, contact)
-        cur.execute(query_for_contact, values_for_contact)
+    contact_choice = get_input("Do you want to add your contact number? (Yes [1], No [2]): ", "int", 1, 2, None, None)
+
+    if (contact_choice == 1):
+        while True:
+            contact = get_input("Enter Contact Number (09XXXXXXXXX): ", "contact", 1, 75, None, None)
+
+            cur.execute("SELECT MAX(establishment_contact_id) FROM FOOD_ESTABLISHMENT_CONTACT")
+            new_contact_increment = cur.fetchone()[0]
+
+            alter_query = "ALTER TABLE FOOD_ESTABLISHMENT_CONTACT AUTO_INCREMENT = %s"
+            cur.execute(alter_query, (new_contact_increment,))
+
+            query_for_contact = "INSERT INTO FOOD_ESTABLISHMENT_CONTACT (establishment_id, establishment_contact_number) VALUES (%s, %s)"
+            values_for_contact = (establishment_id, contact)
+            cur.execute(query_for_contact, values_for_contact)
+
+            another_choice = get_input("Do you want to add another contact number? (Yes [1], No [2]): ", "int", 1, 2, None, None)
+
+            if (another_choice == 2): break
 
     # For Social Media Links
-    while True:
-        social = get_input("Enter Social Media Link (or type 'done' to finish): ", "string", 1, 200, None, None)
-        if social.lower() == 'done':
-            break
-        query_for_social = "INSERT INTO FOOD_ESTABLISHMENT_SOCIAL (establishment_id, social_media_link) VALUES (%s, %s)"
-        values_for_social = (establishment_id, social)
-        cur.execute(query_for_social, values_for_social)
+    social_choice = get_input("Do you want to add your social media link? (Yes [1], No [2]): ", "int", 1, 2, None, None)
 
-    print("Establishment added successfully.")
+    if (social_choice == 1):
+        while True:
+            social = get_input("Enter Social Media Link: ", "string", 1, 200, None, None)
+
+            cur.execute("SELECT MAX(establishment_social_id) FROM FOOD_ESTABLISHMENT_SOCIAL")
+            new_social_increment = cur.fetchone()[0]
+
+            alter_query = "ALTER TABLE FOOD_ESTABLISHMENT_SOCIAL AUTO_INCREMENT = %s"
+            cur.execute(alter_query, (new_social_increment,))
+
+            query_for_social = "INSERT INTO FOOD_ESTABLISHMENT_SOCIAL (establishment_id, social_media_link) VALUES (%s, %s)"
+            values_for_social = (establishment_id, social)
+            cur.execute(query_for_social, values_for_social)
+
+            another_choice = get_input("Do you want to add another social media link? (Yes [1], No [2]): ", "int", 1, 2, None, None)
+
+            if (another_choice == 2): break
+
+
+    print("\nEstablishment added successfully.")
 
 # Delete an Establishment
 def delete_establishment(cur, user_id):
@@ -204,21 +238,47 @@ def update_establishment(cur, user_id):
             establishment_name = get_input("Enter new Establishment Name: ", "string", 1, 75, None, None)
             date_established = get_input("Enter new Date Established (YYYY-MM-DD): ", "date", 1, 75, None, None)
             location = get_input("Enter new Location: ", "string", 1, 75, None, None)
-            opening_hour = get_input("Enter new Opening Hour: ", "hour", 1, 75, None, None)
-            contact = get_input("Enter new Contact Number: ", "string", 1, 75, None, None)
-            social = get_input("Enter new Social Media: ", "string", 1, 200, None, None)
+            opening_hour = get_input("Enter new Opening Hour (HH:MM:SS): ", "hour", 1, 75, None, None)
+            
+            query = "SELECT establishment_contact_number FROM FOOD_ESTABLISHMENT_CONTACT WHERE establishment_id = %s"
+            cur.execute(query, (establishment_id,))
+            result = cur.fetchone()[0]
+            
+            if result:
+                print(f"\nYour current contact number is : {result}")
+                contact_choice = get_input("Do you want to update your contact number? (Yes [1], No [2]): ", "int", 1, 2, None, None)
+            else:
+                print("\nYou currently don't have a contact number")
+                contact_choice = get_input("Do you want to add your contact number? (Yes [1], No [2]): ", "int", 1, 2, None, None)
+
+            if (contact_choice == 1):
+                contact = get_input("Enter Contact Number: (09XXXXXXXXX)", "contact", 1, 75, None, None)
+
+                query_for_contact = "UPDATE FOOD_ESTABLISHMENT_CONTACT SET establishment_contact_number = %s WHERE establishment_id = %s"
+                values_for_contact = (contact, establishment_id)
+                cur.execute(query_for_contact, values_for_contact)
+
+            query = "SELECT social_media_link FROM FOOD_ESTABLISHMENT_SOCIAL WHERE establishment_id = %s"
+            cur.execute(query, (establishment_id,))
+            result = cur.fetchone()[0]
+            
+            if result:
+                print(f"\nYour current social media link is : {result}")
+                social_choice = get_input("Do you want to update your social media link? (Yes [1], No [2]): ", "int", 1, 2, None, None)
+            else:
+                print("\nYou currently don't have a social media link")
+                social_choice = get_input("Do you want to add your social media link? (Yes [1], No [2]): ", "int", 1, 2, None, None)
+            
+            if (social_choice == 1):
+                social = get_input("Enter Social Media: ", "string", 1, 200, None, None)
+
+                query_for_social = "UPDATE FOOD_ESTABLISHMENT_SOCIAL SET social_media_link = %s WHERE establishment_id = %s"
+                values_for_social = (social, establishment_id)
+                cur.execute(query_for_social, values_for_social)
 
             query = "UPDATE FOOD_ESTABLISHMENT SET establishment_name = %s, date_established = %s, location = %s, opening_hour = %s, user_id = %s WHERE establishment_id = %s"
             values = (establishment_name, date_established, location, opening_hour, user_id, establishment_id)
             cur.execute(query, values)
-
-            query_for_contact = "UPDATE FOOD_ESTABLISHMENT_CONTACT SET establishment_contact_number = %s WHERE establishment_id = %s"
-            values_for_contact = (contact, establishment_id)
-            cur.execute(query_for_contact, values_for_contact)
-
-            query_for_social = "UPDATE FOOD_ESTABLISHMENT_SOCIAL SET social_media_link = %s WHERE establishment_id = %s"
-            values_for_social = (social, establishment_id)
-            cur.execute(query_for_social, values_for_social)
 
             break
     return
@@ -226,81 +286,85 @@ def update_establishment(cur, user_id):
 
 # View all establishments
 def display_all_establishments(cur):
-    print("\n----------Display All Establishments----------")
-    print("[1] View all establishments")
-    print("[2] View all establishments with a high average rating (rating >= 4)")
-    choice = get_input("\nEnter your choice: ", "int", 1, 2, None, None)
+    while True:
+        print("\n----------Display All Establishments----------")
+        print("[1] View all establishments")
+        print("[2] View all establishments with a high average rating (rating >= 4)")
+        print("[0] Back to Menu")
+        choice = get_input("\nEnter your choice: ", "int", 0, 2, None, None)
 
-    if choice == 1:
-        query = """
-        SELECT fe.establishment_id, fe.establishment_name, fe.date_established, fe.location, fe.opening_hour, fe.user_id, 
-               cn.establishment_contact_number, sm.social_media_link, AVG(rv.rating) as avg_rating
-        FROM FOOD_ESTABLISHMENT fe
-        LEFT JOIN FOOD_ESTABLISHMENT_CONTACT cn ON fe.establishment_id = cn.establishment_id
-        LEFT JOIN FOOD_ESTABLISHMENT_SOCIAL sm ON fe.establishment_id = sm.establishment_id
-        LEFT JOIN REVIEW rv ON fe.establishment_id = rv.establishment_id
-        GROUP BY fe.establishment_id, cn.establishment_contact_number, sm.social_media_link
-        ORDER BY fe.establishment_id
-        """
-        cur.execute(query)
+        if choice == 1:
+            query = """
+            SELECT fe.establishment_id, fe.establishment_name, fe.date_established, fe.location, fe.opening_hour, fe.user_id, 
+                cn.establishment_contact_number, sm.social_media_link, AVG(rv.rating) as avg_rating
+            FROM FOOD_ESTABLISHMENT fe
+            LEFT JOIN FOOD_ESTABLISHMENT_CONTACT cn ON fe.establishment_id = cn.establishment_id
+            LEFT JOIN FOOD_ESTABLISHMENT_SOCIAL sm ON fe.establishment_id = sm.establishment_id
+            LEFT JOIN REVIEW rv ON fe.establishment_id = rv.establishment_id
+            GROUP BY fe.establishment_id, cn.establishment_contact_number, sm.social_media_link
+            ORDER BY fe.establishment_id
+            """
+            cur.execute(query)
 
-    elif choice == 2:
-        query = """
-        SELECT fe.establishment_id, fe.establishment_name, fe.date_established, fe.location, fe.opening_hour, fe.user_id, 
-               cn.establishment_contact_number, sm.social_media_link, AVG(rv.rating) as avg_rating
-        FROM FOOD_ESTABLISHMENT fe
-        LEFT JOIN FOOD_ESTABLISHMENT_CONTACT cn ON fe.establishment_id = cn.establishment_id
-        LEFT JOIN FOOD_ESTABLISHMENT_SOCIAL sm ON fe.establishment_id = sm.establishment_id
-        LEFT JOIN REVIEW rv ON fe.establishment_id = rv.establishment_id
-        GROUP BY fe.establishment_id, cn.establishment_contact_number, sm.social_media_link
-        HAVING avg_rating >= 4
-        ORDER BY fe.establishment_id
-        """
-        cur.execute(query)
+        elif choice == 2:
+            query = """
+            SELECT fe.establishment_id, fe.establishment_name, fe.date_established, fe.location, fe.opening_hour, fe.user_id, 
+                cn.establishment_contact_number, sm.social_media_link, AVG(rv.rating) as avg_rating
+            FROM FOOD_ESTABLISHMENT fe
+            LEFT JOIN FOOD_ESTABLISHMENT_CONTACT cn ON fe.establishment_id = cn.establishment_id
+            LEFT JOIN FOOD_ESTABLISHMENT_SOCIAL sm ON fe.establishment_id = sm.establishment_id
+            LEFT JOIN REVIEW rv ON fe.establishment_id = rv.establishment_id
+            GROUP BY fe.establishment_id, cn.establishment_contact_number, sm.social_media_link
+            HAVING avg_rating >= 4
+            ORDER BY fe.establishment_id
+            """
+            cur.execute(query)
+        
+        elif choice == 0: return
 
-    result = cur.fetchall()
+        result = cur.fetchall()
 
-    if not result:
-        print("No food establishments found for the given criteria.")
-    else:
-        establishments = {}
-        for establishment in result:
-            est_id = establishment[0]
-            if est_id not in establishments:
-                establishments[est_id] = {
-                    "name": establishment[1],
-                    "date_established": establishment[2],
-                    "location": establishment[3],
-                    "opening_hour": establishment[4],
-                    "user_id": establishment[5],
-                    "establishment_contact_number": set(),
-                    "social_media_links": set(),
-                    "avg_rating": establishment[8]
-                }
-            if establishment[6]:  # Check if contact number is not None
-                establishments[est_id]["establishment_contact_number"].add(establishment[6])
-            if establishment[7]:  # Check if social media link is not None
-                establishments[est_id]["social_media_links"].add(establishment[7])
+        if not result:
+            print("No food establishments found for the given criteria.")
+        else:
+            establishments = {}
+            for establishment in result:
+                est_id = establishment[0]
+                if est_id not in establishments:
+                    establishments[est_id] = {
+                        "name": establishment[1],
+                        "date_established": establishment[2],
+                        "location": establishment[3],
+                        "opening_hour": establishment[4],
+                        "user_id": establishment[5],
+                        "establishment_contact_number": set(),
+                        "social_media_links": set(),
+                        "avg_rating": establishment[8]
+                    }
+                if establishment[6]:  # Check if contact number is not None
+                    establishments[est_id]["establishment_contact_number"].add(establishment[6])
+                if establishment[7]:  # Check if social media link is not None
+                    establishments[est_id]["social_media_links"].add(establishment[7])
 
-        for est_id, details in establishments.items():
-            print(f"\nEstablishment ID: {est_id}")
-            print(f"Establishment Name: {details['name']}")
-            print(f"Date Established: {details['date_established']}")
-            print(f"Location: {details['location']}")
-            print(f"Opening Hour: {details['opening_hour']}")
-            avg_rating = details['avg_rating']
-            if avg_rating is not None:
-                print(f"Average Rating: {avg_rating:.2f}")
-            else:
-                print("Average Rating: No reviews yet")
-            print("Contact Numbers:")
-            if not details['establishment_contact_number']:
-                print(" No contact numbers available")
-            for index, number in enumerate(details['establishment_contact_number'], start=1):
-                print(f" {index}. {number}")
-            print("Social Media Links:")
-            if not details['social_media_links']:
-                print(" No social media links available")
-            for index, link in enumerate(details['social_media_links'], start=1):
-                print(f" {index}. {link}")
-            print(f"User ID: {details['user_id']}")
+            for est_id, details in establishments.items():
+                print(f"\nEstablishment ID: {est_id}")
+                print(f"Establishment Name: {details['name']}")
+                print(f"Date Established: {details['date_established']}")
+                print(f"Location: {details['location']}")
+                print(f"Opening Hour: {details['opening_hour']}")
+                avg_rating = details['avg_rating']
+                if avg_rating is not None:
+                    print(f"Average Rating: {avg_rating:.2f}")
+                else:
+                    print("Average Rating: No reviews yet")
+                print("Contact Numbers:")
+                if not details['establishment_contact_number']:
+                    print(" No contact numbers available")
+                for index, number in enumerate(details['establishment_contact_number'], start=1):
+                    print(f" {index}. {number}")
+                print("Social Media Links:")
+                if not details['social_media_links']:
+                    print(" No social media links available")
+                for index, link in enumerate(details['social_media_links'], start=1):
+                    print(f" {index}. {link}")
+                print(f"User ID: {details['user_id']}")

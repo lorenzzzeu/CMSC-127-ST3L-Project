@@ -5,12 +5,12 @@ def food_item_menu(cur, user_id):
     #ask muna kung sino yung user para malaman kung owner ba siya. Owner lang ang pwede mag add
     
     #check if user is an owner
-    query = "SELECT is_owner FROM User WHERE user_id = %s"
+    query = "SELECT is_owner, is_customer FROM User WHERE user_id = %s"
     cur.execute(query, (user_id,))
     
-    is_owner = cur.fetchone()[0]
+    userType = cur.fetchone()
 
-    if (is_owner) == 1:
+    if ((userType[0] == 1 and userType[1] == 1) or userType[0] == 1):
         while True:
             print(f"\n----------Food Item----------")
             print("[1] Search Food Item")
@@ -119,10 +119,13 @@ def search_food_item(cur):
 
     cur.execute(query, values)
     
-    rows = cur.fetchall()
-    if rows:
-        for row in rows:
-            print(row)
+    result = cur.fetchall()
+    if result:
+        for food_item in result:
+            print(f"\nFood ID: {food_item[0]}")
+            print(f"Food Name: {food_item[1]}")
+            print(f"Price: {food_item[2]}")
+            print(f"Food Type: {food_item[3]}")
     else:
         print("\nThere is no food item with this type")
        
