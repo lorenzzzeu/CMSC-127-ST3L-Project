@@ -129,6 +129,26 @@ def add_establishment(cur, user_id):
 
             if (another_choice == 2): break
 
+    cur.execute("SELECT MAX(establishment_contact_id) FROM FOOD_ESTABLISHMENT_CONTACT")
+    new_contact_increment = cur.fetchone()[0]
+
+    alter_query = "ALTER TABLE FOOD_ESTABLISHMENT_CONTACT AUTO_INCREMENT = %s"
+    cur.execute(alter_query, (new_contact_increment,))
+
+    query_for_contact = "INSERT INTO FOOD_ESTABLISHMENT_CONTACT (establishment_id, establishment_contact_number) VALUES (%s, %s)"
+    values_for_contact = (establishment_id, contact)
+    cur.execute(query_for_contact, values_for_contact)
+
+    cur.execute("SELECT MAX(establishment_social_id) FROM FOOD_ESTABLISHMENT_SOCIAL")
+    new_social_increment = cur.fetchone()[0]
+
+    alter_query = "ALTER TABLE FOOD_ESTABLISHMENT_SOCIAL AUTO_INCREMENT = %s"
+    cur.execute(alter_query, (new_social_increment,))
+
+    query_for_social = "INSERT INTO FOOD_ESTABLISHMENT_SOCIAL (establishment_id, social_media_link) VALUES (%s, %s)"
+    values_for_social = (establishment_id, social)
+    cur.execute(query_for_social, values_for_social)
+
 
     print("\nEstablishment added successfully.")
 
