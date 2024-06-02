@@ -194,35 +194,126 @@ def search_establishment(cur):
     if search_option == 1:
         establishment_id = int(get_id("Enter Establishment ID: ", "establishment", "fetch", None, None, cur))
 
-        query = "SELECT establishment_id, establishment_name, date_established, location, opening_hour, user_id,  (select establishment_contact_number from food_establishment_contact where establishment_id=%s) as contact_number  FROM FOOD_ESTABLISHMENT WHERE establishment_id = %s"
+        query = """
+            SELECT fe.establishment_id, fe.establishment_name, fe.date_established, fe.location, fe.opening_hour, fe.user_id, 
+                cn.establishment_contact_number, sm.social_media_link, AVG(rv.rating) as avg_rating
+            FROM FOOD_ESTABLISHMENT fe
+            LEFT JOIN FOOD_ESTABLISHMENT_CONTACT cn ON fe.establishment_id = cn.establishment_id
+            LEFT JOIN FOOD_ESTABLISHMENT_SOCIAL sm ON fe.establishment_id = sm.establishment_id
+            LEFT JOIN REVIEW rv ON fe.establishment_id = rv.establishment_id
+            where fe.establishment_id = %s
+            GROUP BY fe.establishment_id, cn.establishment_contact_number, sm.social_media_link
+            ORDER BY fe.establishment_id
+            """
+
+        # query = "SELECT establishment_id, establishment_name, date_established, location, opening_hour, user_id,  (select establishment_contact_number from food_establishment_contact where establishment_id=fe.establishment_id) as contact_number  FROM FOOD_ESTABLISHMENT fe WHERE establishment_id = %s"
         cur.execute(query, (establishment_id,))
-        result = cur.fetchone()
+        result = cur.fetchall()
 
     elif search_option == 2:
         establishment_name = get_input("Enter partial or full Establishment Name: ", "string", 1, 75, None, None)
-
-        query = "SELECT establishment_id, establishment_name, date_established, location, opening_hour, user_id,  (select establishment_contact_number from food_establishment_contact where establishment_id=%s) as contact_number FROM FOOD_ESTABLISHMENT WHERE establishment_name LIKE %s"
+        
+        query = """
+            SELECT fe.establishment_id, fe.establishment_name, fe.date_established, fe.location, fe.opening_hour, fe.user_id, 
+                cn.establishment_contact_number, sm.social_media_link, AVG(rv.rating) as avg_rating
+            FROM FOOD_ESTABLISHMENT fe
+            LEFT JOIN FOOD_ESTABLISHMENT_CONTACT cn ON fe.establishment_id = cn.establishment_id
+            LEFT JOIN FOOD_ESTABLISHMENT_SOCIAL sm ON fe.establishment_id = sm.establishment_id
+            LEFT JOIN REVIEW rv ON fe.establishment_id = rv.establishment_id
+            where fe.establishment_name LIKE %s
+            GROUP BY fe.establishment_id, cn.establishment_contact_number, sm.social_media_link
+            ORDER BY fe.establishment_id
+            """
+        
+        # query = "SELECT establishment_id, establishment_name, date_established, location, opening_hour, user_id,  (select establishment_contact_number from food_establishment_contact where establishment_id=%s) as contact_number FROM FOOD_ESTABLISHMENT WHERE establishment_name LIKE %s"
         cur.execute(query, (f'%{establishment_name}%',))
-        result = cur.fetchall()
+        result = cur.fetchall() #fetchall() is used because there can be multiple establishments with the same name in the table for contact and social media ilnks
 
     if result:
         if search_option == 1:
-            print(f"\nEstablishment ID: {result[0]}")
-            print(f"Establishment Name: {result[1]}")
-            print(f"Date Established: {result[2]}")
-            print(f"Location: {result[3]}")
-            print(f"Opening Hour: {result[4]}")
-            print(f"User ID: {result[5]}")
-            print(f"Contact Number: {result[6]}")
-        elif search_option == 2:
+            establishments = {}
             for establishment in result:
-                print(f"\nEstablishment ID: {establishment[0]}")
-                print(f"Establishment Name: {establishment[1]}")
-                print(f"Date Established: {establishment[2]}")
-                print(f"Location: {establishment[3]}")
-                print(f"Opening Hour: {establishment[4]}")
-                print(f"User ID: {establishment[5]}")
-                print(f"Contact Number: {result[6]}")
+                est_id = establishment[0]
+                if est_id not in establishments:
+                    establishments[est_id] = {
+                        "name": establishment[1],
+                        "date_established": establishment[2],
+                        "location": establishment[3],
+                        "opening_hour": establishment[4],
+                        "user_id": establishment[5],
+                        "establishment_contact_number": set(),
+                        "social_media_links": set(),
+                        "avg_rating": establishment[8]
+                    }
+                if establishment[6]:  # Check if contact number is not None
+                    establishments[est_id]["establishment_contact_number"].add(establishment[6])
+                if establishment[7]:  # Check if social media link is not None
+                    establishments[est_id]["social_media_links"].add(establishment[7])
+            for est_id, details in establishments.items():
+                print(f"\nEstablishment ID: {est_id}")
+                print(f"Establishment Name: {details['name']}")
+                print(f"Date Established: {details['date_established']}")
+                print(f"Location: {details['location']}")
+                print(f"Opening Hour: {details['opening_hour']}")
+                avg_rating = details['avg_rating']
+                if avg_rating is not None:
+                    print(f"Average Rating: {avg_rating:.2f}")
+                else:
+                    print("Average Rating: No reviews yet")
+                print("Contact Numbers:")
+                if not details['establishment_contact_number']:
+                    print(" No contact numbers available")
+                for index, number in enumerate(details['establishment_contact_number'], start=1):
+                    print(f" {index}. {number}")
+                print("Social Media Links:")
+                if not details['social_media_links']:
+                    print(" No social media links available")
+                for index, link in enumerate(details['social_media_links'], start=1):
+                    print(f" {index}. {link}")
+                print(f"User ID: {details['user_id']}")
+
+        elif search_option == 2:
+            establishments = {}
+            for establishment in result:
+                est_id = establishment[0]
+                if est_id not in establishments:
+                    establishments[est_id] = {
+                        "name": establishment[1],
+                        "date_established": establishment[2],
+                        "location": establishment[3],
+                        "opening_hour": establishment[4],
+                        "user_id": establishment[5],
+                        "establishment_contact_number": set(),
+                        "social_media_links": set(),
+                        "avg_rating": establishment[8]
+                    }
+                if establishment[6]:  # Check if contact number is not None
+                    establishments[est_id]["establishment_contact_number"].add(establishment[6])
+                if establishment[7]:  # Check if social media link is not None
+                    establishments[est_id]["social_media_links"].add(establishment[7])
+            for est_id, details in establishments.items():
+                print(f"\nEstablishment ID: {est_id}")
+                print(f"Establishment Name: {details['name']}")
+                print(f"Date Established: {details['date_established']}")
+                print(f"Location: {details['location']}")
+                print(f"Opening Hour: {details['opening_hour']}")
+                avg_rating = details['avg_rating']
+                if avg_rating is not None:
+                    print(f"Average Rating: {avg_rating:.2f}")
+                else:
+                    print("Average Rating: No reviews yet")
+                print("Contact Numbers:")
+                if not details['establishment_contact_number']:
+                    print(" No contact numbers available")
+                for index, number in enumerate(details['establishment_contact_number'], start=1):
+                    print(f" {index}. {number}")
+                print("Social Media Links:")
+                if not details['social_media_links']:
+                    print(" No social media links available")
+                for index, link in enumerate(details['social_media_links'], start=1):
+                    print(f" {index}. {link}")
+                print(f"User ID: {details['user_id']}")
+           
     else:
         print("No establishment found matching the search criteria.")
 
@@ -265,7 +356,9 @@ def update_establishment(cur, user_id):
             result = cur.fetchone()[0]
             
             if result:
-                print(f"\nYour current contact number is : {result}")
+                print(f"\nYour current contact number is/are : ")
+                for number in result:
+                    print(f" {number}")
                 contact_choice = get_input("Do you want to update your contact number? (Yes [1], No [2]): ", "int", 1, 2, None, None)
             else:
                 print("\nYou currently don't have a contact number")
