@@ -135,9 +135,9 @@ def add_establishment(cur, user_id):
     alter_query = "ALTER TABLE FOOD_ESTABLISHMENT_CONTACT AUTO_INCREMENT = %s"
     cur.execute(alter_query, (new_contact_increment,))
 
-    query_for_contact = "INSERT INTO FOOD_ESTABLISHMENT_CONTACT (establishment_id, establishment_contact_number) VALUES (%s, %s)"
-    values_for_contact = (establishment_id, contact)
-    cur.execute(query_for_contact, values_for_contact)
+    # query_for_contact = "INSERT INTO FOOD_ESTABLISHMENT_CONTACT (establishment_id, establishment_contact_number) VALUES (%s, %s)"
+    # values_for_contact = (establishment_id, contact)
+    # cur.execute(query_for_contact, values_for_contact)
 
     cur.execute("SELECT MAX(establishment_social_id) FROM FOOD_ESTABLISHMENT_SOCIAL")
     new_social_increment = cur.fetchone()[0]
@@ -145,9 +145,9 @@ def add_establishment(cur, user_id):
     alter_query = "ALTER TABLE FOOD_ESTABLISHMENT_SOCIAL AUTO_INCREMENT = %s"
     cur.execute(alter_query, (new_social_increment,))
 
-    query_for_social = "INSERT INTO FOOD_ESTABLISHMENT_SOCIAL (establishment_id, social_media_link) VALUES (%s, %s)"
-    values_for_social = (establishment_id, social)
-    cur.execute(query_for_social, values_for_social)
+    # query_for_social = "INSERT INTO FOOD_ESTABLISHMENT_SOCIAL (establishment_id, social_media_link) VALUES (%s, %s)"
+    # values_for_social = (establishment_id, social)
+    # cur.execute(query_for_social, values_for_social)
 
 
     print("\nEstablishment added successfully.")
@@ -351,43 +351,159 @@ def update_establishment(cur, user_id):
             location = get_input("Enter new Location: ", "string", 1, 75, None, None)
             opening_hour = get_input("Enter new Opening Hour (HH:MM:SS): ", "hour", 1, 75, None, None)
             
+
+            #Update Contact Numbers
             query = "SELECT establishment_contact_number FROM FOOD_ESTABLISHMENT_CONTACT WHERE establishment_id = %s"
             cur.execute(query, (establishment_id,))
-            result = cur.fetchone()[0]
+            result = cur.fetchall()
             
             if result:
+                contact_number = set()
+                for row in result:
+                    contact_number.add(row[0])
                 print(f"\nYour current contact number is/are : ")
-                for number in result:
-                    print(f" {number}")
+                for number in enumerate(contact_number, start=1):
+                    print(f" {number[0]}. {number[1]}")
                 contact_choice = get_input("Do you want to update your contact number? (Yes [1], No [2]): ", "int", 1, 2, None, None)
             else:
                 print("\nYou currently don't have a contact number")
                 contact_choice = get_input("Do you want to add your contact number? (Yes [1], No [2]): ", "int", 1, 2, None, None)
 
+                #Get multiple inputs of contact numbers
+                while True:
+                    contact = get_input("Enter Contact Number (09XXXXXXXXX): ", "contact", 1, 75, None, None)
+
+                    cur.execute("SELECT MAX(establishment_contact_id) FROM FOOD_ESTABLISHMENT_CONTACT")
+                    new_contact_increment = cur.fetchone()[0]
+
+                    alter_query = "ALTER TABLE FOOD_ESTABLISHMENT_CONTACT AUTO_INCREMENT = %s"
+                    cur.execute(alter_query, (new_contact_increment,))
+
+                    query_for_contact = "INSERT INTO FOOD_ESTABLISHMENT_CONTACT (establishment_id, establishment_contact_number) VALUES (%s, %s)"
+                    values_for_contact = (establishment_id, contact)
+                    cur.execute(query_for_contact, values_for_contact)
+
+                    another_choice = get_input("Do you want to add another contact number? (Yes [1], No [2]): ", "int", 1, 2, None, None)
+
+                    if (another_choice == 2): break
+
+
+            
+
+
             if (contact_choice == 1):
-                contact = get_input("Enter Contact Number: (09XXXXXXXXX)", "contact", 1, 75, None, None)
+                add_or_update_number = get_input("Do you want to add a new contact number or update an existing one? (Add [1], Update [2]): ", "int", 1, 2, None, None)
+                
+                #Add Contact Number
+                if (add_or_update_number == 1):
+                    #allow for multiple entries of contact number
+                    while True:
+                        contact = get_input("Enter Contact Number (09XXXXXXXXX): ", "contact", 1, 75, None, None)
 
-                query_for_contact = "UPDATE FOOD_ESTABLISHMENT_CONTACT SET establishment_contact_number = %s WHERE establishment_id = %s"
-                values_for_contact = (contact, establishment_id)
-                cur.execute(query_for_contact, values_for_contact)
+                        cur.execute("SELECT MAX(establishment_contact_id) FROM FOOD_ESTABLISHMENT_CONTACT")
+                        new_contact_increment = cur.fetchone()[0]
 
+                        alter_query = "ALTER TABLE FOOD_ESTABLISHMENT_CONTACT AUTO_INCREMENT = %s"
+                        cur.execute(alter_query, (new_contact_increment,))
+
+                        query_for_contact = "INSERT INTO FOOD_ESTABLISHMENT_CONTACT (establishment_id, establishment_contact_number) VALUES (%s, %s)"
+                        values_for_contact = (establishment_id, contact)
+                        cur.execute(query_for_contact, values_for_contact)
+
+                        another_choice = get_input("Do you want to add another contact number? (Yes [1], No [2]): ", "int", 1, 2, None, None)
+
+                        if (another_choice == 2): break
+
+                #update Contact Number
+                elif (add_or_update_number == 2):
+                    #count the number of contact numbers to update
+                    for number in contact_number:
+                        contact = get_input("Enter Contact Number: (09XXXXXXXXX)", "contact", 1, 75, None, None)
+
+
+                        #get the the id of the contact number to update
+                        query_for_contact_id = "SELECT establishment_contact_id FROM FOOD_ESTABLISHMENT_CONTACT WHERE establishment_contact_number = %s"
+                        values_for_contact_id = (number,)  
+                        cur.execute(query_for_contact_id, values_for_contact_id)
+                        contact_id = cur.fetchone()[0]
+
+                        query_for_contact = "UPDATE FOOD_ESTABLISHMENT_CONTACT SET establishment_contact_number = %s WHERE establishment_contact_id = %s"
+                        values_for_contact = (contact, contact_id)
+                        cur.execute(query_for_contact, values_for_contact)
+
+
+
+            #Update Social Media Links
             query = "SELECT social_media_link FROM FOOD_ESTABLISHMENT_SOCIAL WHERE establishment_id = %s"
             cur.execute(query, (establishment_id,))
-            result = cur.fetchone()[0]
+            result = cur.fetchall()
             
             if result:
-                print(f"\nYour current social media link is : {result}")
+                links = set()
+                for row in result:
+                    links.add(row[0])
+
+                print(f"\nYour current social media link is/are : ")
+                for link in enumerate(links, start=1):
+                    print(f" {link[0]}. {link[1]}")
                 social_choice = get_input("Do you want to update your social media link? (Yes [1], No [2]): ", "int", 1, 2, None, None)
             else:
                 print("\nYou currently don't have a social media link")
                 social_choice = get_input("Do you want to add your social media link? (Yes [1], No [2]): ", "int", 1, 2, None, None)
-            
-            if (social_choice == 1):
-                social = get_input("Enter Social Media: ", "string", 1, 200, None, None)
 
-                query_for_social = "UPDATE FOOD_ESTABLISHMENT_SOCIAL SET social_media_link = %s WHERE establishment_id = %s"
-                values_for_social = (social, establishment_id)
-                cur.execute(query_for_social, values_for_social)
+                #Getting multiple inputs of social media links
+                while True:
+                    social = get_input("Enter Social Media Link: ", "string", 1, 200, None, None)
+
+                    cur.execute("SELECT MAX(establishment_social_id) FROM FOOD_ESTABLISHMENT_SOCIAL")
+                    new_social_increment = cur.fetchone()[0]
+
+                    alter_query = "ALTER TABLE FOOD_ESTABLISHMENT_SOCIAL AUTO_INCREMENT = %s"
+                    cur.execute(alter_query, (new_social_increment,))
+
+                    query_for_social = "INSERT INTO FOOD_ESTABLISHMENT_SOCIAL (establishment_id, social_media_link) VALUES (%s, %s)"
+                    values_for_social = (establishment_id, social)
+                    cur.execute(query_for_social, values_for_social)
+
+                    another_choice = get_input("Do you want to add another social media link? (Yes [1], No [2]): ", "int", 1, 2, None, None)
+
+                    if (another_choice == 2): break
+
+            if (social_choice == 1):
+                add_or_update_link = get_input("Do you want to add a new social media link or update an existing one? (Add [1], Update [2]): ", "int", 1, 2, None, None)
+            
+                if (add_or_update_link == 1):
+                    #Getting multiple inputs of social media links
+                    while True:
+                        social = get_input("Enter Social Media Link: ", "string", 1, 200, None, None)
+
+                        cur.execute("SELECT MAX(establishment_social_id) FROM FOOD_ESTABLISHMENT_SOCIAL")
+                        new_social_increment = cur.fetchone()[0]
+
+                        alter_query = "ALTER TABLE FOOD_ESTABLISHMENT_SOCIAL AUTO_INCREMENT = %s"
+                        cur.execute(alter_query, (new_social_increment,))
+
+                        query_for_social = "INSERT INTO FOOD_ESTABLISHMENT_SOCIAL (establishment_id, social_media_link) VALUES (%s, %s)"
+                        values_for_social = (establishment_id, social)
+                        cur.execute(query_for_social, values_for_social)
+
+                        another_choice = get_input("Do you want to add another social media link? (Yes [1], No [2]): ", "int", 1, 2, None, None)
+
+                        if (another_choice == 2): break
+
+                elif (add_or_update_link == 2):
+                    for link in links:
+                        social_link = get_input("Enter Social Media Link: ", "string", 1, 75, None, None)
+
+                        # get the id of the contact number to update
+                        query_for_social_id = "SELECT establishment_social_id FROM FOOD_ESTABLISHMENT_SOCIAL WHERE social_media_link = %s"
+                        values_for_social_id = (link,)
+                        cur.execute(query_for_social_id, values_for_social_id)
+                        link_id = cur.fetchone()[0]
+
+                        query_for_social = "UPDATE FOOD_ESTABLISHMENT_SOCIAL SET social_media_link = %s WHERE establishment_social_id = %s"
+                        values_for_social = (social_link, link_id)
+                        cur.execute(query_for_social, values_for_social)
 
             query = "UPDATE FOOD_ESTABLISHMENT SET establishment_name = %s, date_established = %s, location = %s, opening_hour = %s, user_id = %s WHERE establishment_id = %s"
             values = (establishment_name, date_established, location, opening_hour, user_id, establishment_id)
