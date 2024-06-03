@@ -9,7 +9,8 @@ This information system allows users to record, in electronic form, data on food
 - Dan Victor Gapaz
 - Gian Carlo Suarez
 - Dirk Ablanque <br/>
-**Section:** ST3L
+
+<br/>**Section:** ST3L
 
 ## Features
 - Add, update, and delete a food review (on a food establishment or a food item)
