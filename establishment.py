@@ -1,9 +1,18 @@
 #create a try catch or validation to check if the inputted establishment_id is already in the database
 
 from system import count, get_id, get_input, validate_id
+#import customtkinter as ctk
+#from tkinter import messagebox
+#from main import open_main_menu
 
 # Menu For Food Establishment
 def establishment_menu(cur, user_id):
+
+    #global main_menu_window
+    #main_menu_window = ctk.CTkToplevel(root)
+    #main_menu_window.geometry("500x500")
+    #main_menu_window.title("Main Menu")
+
     print("\nFood Establishment and Food Review System")
 
     #check if user is an owner

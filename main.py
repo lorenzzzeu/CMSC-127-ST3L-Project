@@ -17,48 +17,204 @@ ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
 
 root = ctk.CTk()
-root.geometry("1000x600")
+root.geometry("300x300")
 root.title("CMSC 127 Project")
 
 # Connect to MariaDB Platform
 def login():
-    conn_bool = True
-    while conn_bool:
+    #conn_bool = True
+    #while conn_bool:
         mariadb_password = mariadbpassword.get()
     
         try:
+            global conn
             conn = mariadb.connect(
                 user = "root",
                 password = mariadb_password,
                 host = "localhost",
                 autocommit = True,
             )
-            messagebox.showinfo("Login Success", "Welcome!")
+            # Get Cursor for DB functions
+            global cur 
+            cur = conn.cursor()
 
-            if(conn):
-                conn_bool = False
+            # Create database/tables on initial boot and use app database
+            cur.execute("CREATE DATABASE IF NOT EXISTS project127;")
+            cur.execute("USE project127;")
+            cur.execute('''
+                    CREATE TABLE IF NOT EXISTS USER (
+                        user_id INT (3) AUTO_INCREMENT,
+                        first_name VARCHAR(50) NOT NULL,
+                        middle_name VARCHAR(50),
+                        last_name VARCHAR(50),
+                        birthday DATE,
+                        age INT(2),
+                        email VARCHAR (50) NOT NULL,
+                        password VARCHAR(100),
+                        displayed_name VARCHAR(100),
+                        type_of_food_establishment_owned VARCHAR(100), 
+                        food_preference VARCHAR(50), 
+                        is_owner BOOLEAN,
+                        is_customer BOOLEAN,
+                        CONSTRAINT User_UserId_pk PRIMARY KEY (user_id)
+                    );
+                ''')
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS USER_ADDRESS (
+                    user_id INT(3),
+                    address VARCHAR(200),
+                    CONSTRAINT useraddress_address_pk PRIMARY KEY (address),
+                    CONSTRAINT useraddress_userid_fk FOREIGN KEY (user_id) REFERENCES USER (user_id)
+                )
+            ''')
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS USER_CONTACT (
+                    user_id INT(3),
+                    contact_number VARCHAR(20),
+                    CONSTRAINT usercontact_contactnumber_pk PRIMARY KEY (contact_number),
+                    CONSTRAINT usercontact_userid_fk FOREIGN KEY (user_id) REFERENCES USER (user_id)
+                )
+            ''')
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS FOOD_ESTABLISHMENT (
+                    establishment_id INT (3),
+                    establishment_name VARCHAR(100),
+                    date_established DATE,
+                    location VARCHAR(200),
+                    opening_hour TIME,
+                    user_id INT (3),
+                    CONSTRAINT FoodEstablishment_EstablishmentId_pk PRIMARY KEY(establishment_id),
+                    CONSTRAINT FoodEstablishment_UserId_fk FOREIGN KEY (User_id) REFERENCES USER(user_id)
+                );
+            ''')
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS FOOD_ESTABLISHMENT_CONTACT (
+                    establishment_id INT(3),
+                    establishment_contact_number VARCHAR(20),
+                    CONSTRAINT FoodEstablishmentContact_EstablishmentContactNumber_pk PRIMARY KEY (establishment_contact_number),
+                    CONSTRAINT FoodEstablishmentContact_EstablishmentId_fk FOREIGN KEY (establishment_id) REFERENCES FOOD_ESTABLISHMENT(establishment_id) ON DELETE CASCADE
+                );
+            ''')
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS FOOD_ESTABLISHMENT_SOCIAL (
+                    establishment_id INT(3),
+                    social_media_link VARCHAR(250),
+                    CONSTRAINT FoodEstablishmentSocial_SocialMediaLink_pk PRIMARY KEY (social_media_link),
+                    CONSTRAINT FoodEstablishmentSocial_EstablishmentId_fk FOREIGN KEY (establishment_id) REFERENCES FOOD_ESTABLISHMENT(establishment_id) ON DELETE CASCADE
+                );
+            ''')
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS FOOD_ITEM (
+                    food_id INT(3),
+                    food_name VARCHAR(100),
+                    price DECIMAL(10,2),
+                    type VARCHAR(100),
+                    user_id INT (3),
+                    establishment_id INT (3),
+                    CONSTRAINT FoodItem_FoodId_pk PRIMARY KEY (food_id),
+                    CONSTRAINT FoodItem_UserId_fk FOREIGN KEY (user_id) REFERENCES USER(user_id),
+                    CONSTRAINT FoodItem_EstablishmentId_fk FOREIGN KEY (establishment_id) REFERENCES FOOD_ESTABLISHMENT(establishment_id) ON DELETE CASCADE
+                );
+            ''')
+            cur.execute('''
+                CREATE TABLE IF NOT EXISTS REVIEW (
+                    review_id INT(5),
+                    comment VARCHAR (250),
+                    rating INT (2), 
+                    content TEXT,
+                    year YEAR,
+                    day INT (2),
+                    month INT (2),
+                    service INT (1),
+                    ambience  INT (1),
+                    cleanliness  INT (1),
+                    taste  INT (1),
+                    texture  INT (1),
+                    plating  INT (1),
+                    classification VARCHAR(100),
+                    user_id INT (3),
+                    establishment_id INT(3),
+                    food_id INT(3),
+                    CONSTRAINT Review_ReviewId_pk PRIMARY KEY (review_id),
+                    CONSTRAINT Review_UserId_fk FOREIGN KEY (user_id) REFERENCES USER (user_id),
+                    CONSTRAINT Review_EstablishmentId_fk FOREIGN KEY (establishment_id) REFERENCES FOOD_ESTABLISHMENT(establishment_id) ON DELETE CASCADE,
+                    CONSTRAINT Review_FoodId_fk FOREIGN KEY (food_id) REFERENCES FOOD_ITEM(food_id) ON DELETE CASCADE
+                );
+            ''')
+            open_user_id_window()
+
+            #if(conn):
+                #conn_bool = False
 
         except mariadb.Error as e:
              messagebox.showerror("Login Failed", "Invalid username or password")
 
 
+def open_user_id_window():
+    global user_id_window
+    user_id_window = ctk.CTkToplevel(root)
+    user_id_window.geometry("300x300")
+    user_id_window.title("User ID")
 
-frame = ctk.CTkFrame(master=root)
-frame.pack(pady=20, padx=60, fill="both", expand=True)
+    user_id_input = ctk.CTkEntry(user_id_window, placeholder_text="ID")
+    user_id_input.pack(pady=12, padx=10)
 
-label = ctk.CTkLabel(master=frame, text="Login")
+    def submit_user_id():
+        global user_id
+        user_id = user_id_input.get()
+        user_id = get_id(user_id, "user", "fetch", None, None, cur)
+        if user_id:
+            user_id_window.destroy()
+            open_main_menu()
+        else:
+            messagebox.showerror("Error", "Invalid User ID")
+
+    submit_button = ctk.CTkButton(user_id_window, text="Submit", command=submit_user_id)
+    submit_button.pack(pady=20)
+
+# Function to handle button actions in the main menu
+def handle_menu_selection(choice):
+    if choice == 1:
+        print("\n-> Food Establishment")
+        #function for establishment
+        #establishment_menu(cur, user_id)
+    elif choice == 2:
+        print("[2] Food Item")
+    elif choice == 3:
+        print("[3] Food Reviews")
+    elif choice == 0:
+        main_menu_window.destroy()
+
+# Function to open the main menu window
+def open_main_menu():
+    global main_menu_window
+    main_menu_window = ctk.CTkToplevel(root)
+    main_menu_window.geometry("500x500")
+    main_menu_window.title("Main Menu")
+
+    # Create and place the main menu buttons
+    button_food_establishment = ctk.CTkButton(main_menu_window, text="Food Establishment", command=lambda: handle_menu_selection(1))
+    button_food_establishment.pack(pady=5)
+    button_food_item = ctk.CTkButton(main_menu_window, text="Food Item", command=lambda: handle_menu_selection(2))
+    button_food_item.pack(pady=5)
+    button_food_reviews = ctk.CTkButton(main_menu_window, text="Food Reviews", command=lambda: handle_menu_selection(3))
+    button_food_reviews.pack(pady=5)
+    button_exit = ctk.CTkButton(main_menu_window, text="Exit", command=lambda: handle_menu_selection(0))
+    button_exit.pack(pady=20)
+
+label = ctk.CTkLabel(root, text="Login")
 label.pack(pady=12, padx=10)
 
-mariadbpassword = ctk.CTkEntry(master=frame, placeholder_text="Password", show="*")
+mariadbpassword = ctk.CTkEntry(root, placeholder_text="Password", show="*")
 mariadbpassword.pack(pady=12, padx=10)
 
-
 # Create and place the login button
-login_button = ctk.CTkButton(master=frame, text="Login", command=login)
+login_button = ctk.CTkButton(root, text="Login", command=login)
 login_button.pack(pady=20)
 
 # Run the application
 root.mainloop()
+
 
 # Main Menu
 '''
@@ -76,113 +232,7 @@ def MainMenu():
 #################################
 
 
-# Get Cursor for DB functions
-global cur 
-cur = conn.cursor()
 
-# Create database/tables on initial boot and use app database
-cur.execute("CREATE DATABASE IF NOT EXISTS project127;")
-cur.execute("USE project127;")
-cur.execute('''
-        CREATE TABLE IF NOT EXISTS USER (
-            user_id INT (3) AUTO_INCREMENT,
-            first_name VARCHAR(50) NOT NULL,
-            middle_name VARCHAR(50),
-            last_name VARCHAR(50),
-            birthday DATE,
-            age INT(2),
-            email VARCHAR (50) NOT NULL,
-            password VARCHAR(100),
-            displayed_name VARCHAR(100),
-            type_of_food_establishment_owned VARCHAR(100), 
-            food_preference VARCHAR(50), 
-            is_owner BOOLEAN,
-            is_customer BOOLEAN,
-            CONSTRAINT User_UserId_pk PRIMARY KEY (user_id)
-        );
-    ''')
-cur.execute('''
-      CREATE TABLE IF NOT EXISTS USER_ADDRESS (
-          user_id INT(3),
-          address VARCHAR(200),
-          CONSTRAINT useraddress_address_pk PRIMARY KEY (address),
-          CONSTRAINT useraddress_userid_fk FOREIGN KEY (user_id) REFERENCES USER (user_id)
-      )
-  ''')
-cur.execute('''
-    CREATE TABLE IF NOT EXISTS USER_CONTACT (
-        user_id INT(3),
-        contact_number VARCHAR(20),
-        CONSTRAINT usercontact_contactnumber_pk PRIMARY KEY (contact_number),
-        CONSTRAINT usercontact_userid_fk FOREIGN KEY (user_id) REFERENCES USER (user_id)
-    )
-''')
-cur.execute('''
-    CREATE TABLE IF NOT EXISTS FOOD_ESTABLISHMENT (
-        establishment_id INT (3),
-        establishment_name VARCHAR(100),
-        date_established DATE,
-        location VARCHAR(200),
-        opening_hour TIME,
-        user_id INT (3),
-        CONSTRAINT FoodEstablishment_EstablishmentId_pk PRIMARY KEY(establishment_id),
-        CONSTRAINT FoodEstablishment_UserId_fk FOREIGN KEY (User_id) REFERENCES USER(user_id)
-    );
-''')
-cur.execute('''
-      CREATE TABLE IF NOT EXISTS FOOD_ESTABLISHMENT_CONTACT (
-          establishment_id INT(3),
-          establishment_contact_number VARCHAR(20),
-          CONSTRAINT FoodEstablishmentContact_EstablishmentContactNumber_pk PRIMARY KEY (establishment_contact_number),
-          CONSTRAINT FoodEstablishmentContact_EstablishmentId_fk FOREIGN KEY (establishment_id) REFERENCES FOOD_ESTABLISHMENT(establishment_id) ON DELETE CASCADE
-      );
-  ''')
-cur.execute('''
-      CREATE TABLE IF NOT EXISTS FOOD_ESTABLISHMENT_SOCIAL (
-          establishment_id INT(3),
-          social_media_link VARCHAR(250),
-          CONSTRAINT FoodEstablishmentSocial_SocialMediaLink_pk PRIMARY KEY (social_media_link),
-          CONSTRAINT FoodEstablishmentSocial_EstablishmentId_fk FOREIGN KEY (establishment_id) REFERENCES FOOD_ESTABLISHMENT(establishment_id) ON DELETE CASCADE
-      );
-  ''')
-cur.execute('''
-    CREATE TABLE IF NOT EXISTS FOOD_ITEM (
-        food_id INT(3),
-        food_name VARCHAR(100),
-        price DECIMAL(10,2),
-        type VARCHAR(100),
-        user_id INT (3),
-        establishment_id INT (3),
-        CONSTRAINT FoodItem_FoodId_pk PRIMARY KEY (food_id),
-        CONSTRAINT FoodItem_UserId_fk FOREIGN KEY (user_id) REFERENCES USER(user_id),
-        CONSTRAINT FoodItem_EstablishmentId_fk FOREIGN KEY (establishment_id) REFERENCES FOOD_ESTABLISHMENT(establishment_id) ON DELETE CASCADE
-    );
-''')
-cur.execute('''
-    CREATE TABLE IF NOT EXISTS REVIEW (
-        review_id INT(5),
-        comment VARCHAR (250),
-        rating INT (2), 
-        content TEXT,
-        year YEAR,
-        day INT (2),
-        month INT (2),
-        service INT (1),
-        ambience  INT (1),
-        cleanliness  INT (1),
-        taste  INT (1),
-        texture  INT (1),
-        plating  INT (1),
-        classification VARCHAR(100),
-        user_id INT (3),
-        establishment_id INT(3),
-        food_id INT(3),
-        CONSTRAINT Review_ReviewId_pk PRIMARY KEY (review_id),
-        CONSTRAINT Review_UserId_fk FOREIGN KEY (user_id) REFERENCES USER (user_id),
-        CONSTRAINT Review_EstablishmentId_fk FOREIGN KEY (establishment_id) REFERENCES FOOD_ESTABLISHMENT(establishment_id) ON DELETE CASCADE,
-        CONSTRAINT Review_FoodId_fk FOREIGN KEY (food_id) REFERENCES FOOD_ITEM(food_id) ON DELETE CASCADE
-    );
-''')
 
 '''
 user_id = get_id("Enter user ID: ", "user", "fetch", None, None, cur)
