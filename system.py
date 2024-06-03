@@ -239,3 +239,4 @@ def get_id(msg, type, mode, optional_msg, optional_rev, cur):
             print("Review ID is in the system already.")
         except (ValueError, TypeError):
           print("Invalid input!")
+

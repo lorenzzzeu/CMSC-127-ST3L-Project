@@ -161,9 +161,10 @@ def open_user_id_window():
 
     def submit_user_id():
         global user_id
-        user_id = user_id_input.get()
-        user_id = get_id(user_id, "user", "fetch", None, None, cur)
-        if user_id:
+        temp_user_id = user_id_input.get()
+        user_id = validate_id(cur, "user", int(temp_user_id))
+        print(user_id)
+        if user_id == 1:
             user_id_window.destroy()
             open_main_menu()
         else:
@@ -184,6 +185,7 @@ def handle_menu_selection(choice):
         print("[3] Food Reviews")
     elif choice == 0:
         main_menu_window.destroy()
+        root.destroy()
 
 # Function to open the main menu window
 def open_main_menu():
