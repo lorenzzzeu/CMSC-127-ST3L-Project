@@ -459,6 +459,140 @@ def delete_establishment(cur, user_id):
 
     return
 '''
+
+def search_establishment(cur):
+    def get_input(entry, data_type):
+        value = entry.get()
+        if data_type == "string":
+            return value
+        elif data_type == "int":
+            return int(value) if value.isdigit() else None
+
+    def display_results(result, search_option):
+        for widget in results_frame.winfo_children():
+            widget.destroy()
+
+        if result:
+            establishments = {}
+            for establishment in result:
+                est_id = establishment[0]
+                if est_id not in establishments:
+                    establishments[est_id] = {
+                        "name": establishment[1],
+                        "date_established": establishment[2],
+                        "location": establishment[3],
+                        "opening_hour": establishment[4],
+                        "user_id": establishment[5],
+                        "establishment_contact_number": set(),
+                        "social_media_links": set(),
+                        "avg_rating": establishment[8]
+                    }
+                if establishment[6]:  # Check if contact number is not None
+                    establishments[est_id]["establishment_contact_number"].add(establishment[6])
+                if establishment[7]:  # Check if social media link is not None
+                    establishments[est_id]["social_media_links"].add(establishment[7])
+
+            for est_id, details in establishments.items():
+                result_label = ctk.CTkLabel(results_frame, text=f"Establishment ID: {est_id}\n"
+                                                                f"Establishment Name: {details['name']}\n"
+                                                                f"Date Established: {details['date_established']}\n"
+                                                                f"Location: {details['location']}\n"
+                                                                f"Opening Hour: {details['opening_hour']}\n"
+                                                                f"User ID: {details['user_id']}\n"
+                                                                f"Average Rating: {details['avg_rating']:.2f if details['avg_rating'] else 'No reviews yet'}\n"
+                                                                f"Contact Numbers: {', '.join(details['establishment_contact_number']) if details['establishment_contact_number'] else 'No contact numbers available'}\n"
+                                                                f"Social Media Links: {', '.join(details['social_media_links']) if details['social_media_links'] else 'No social media links available'}",
+                                           justify='left')
+                result_label.pack(pady=5)
+        else:
+            no_results_label = ctk.CTkLabel(results_frame, text="No establishment found matching the search criteria.")
+            no_results_label.pack(pady=5)
+
+    def submit_search():
+        search_option = get_input(search_option_entry, "int")
+        if search_option == 1:
+            establishment_id_label.pack(pady=5)
+            establishment_id_entry.pack(pady=5)
+            search_by_id_button.pack(pady=5)
+            establishment_name_label.pack_forget()
+            establishment_name_entry.pack_forget()
+            search_by_name_button.pack_forget()
+        elif search_option == 2:
+            establishment_name_label.pack(pady=5)
+            establishment_name_entry.pack(pady=5)
+            search_by_name_button.pack(pady=5)
+            establishment_id_label.pack_forget()
+            establishment_id_entry.pack_forget()
+            search_by_id_button.pack_forget()
+        else:
+            messagebox.showerror("Invalid Option", "Please select a valid search option.")
+
+    def search_by_id():
+        establishment_id = get_input(establishment_id_entry, "int")
+        if establishment_id is None:
+            messagebox.showerror("Invalid ID", "Please enter a valid establishment ID.")
+            return
+
+        query = """
+            SELECT fe.establishment_id, fe.establishment_name, fe.date_established, fe.location, fe.opening_hour, fe.user_id, 
+                cn.establishment_contact_number, sm.social_media_link, AVG(rv.rating) as avg_rating
+            FROM FOOD_ESTABLISHMENT fe
+            LEFT JOIN FOOD_ESTABLISHMENT_CONTACT cn ON fe.establishment_id = cn.establishment_id
+            LEFT JOIN FOOD_ESTABLISHMENT_SOCIAL sm ON fe.establishment_id = sm.establishment_id
+            LEFT JOIN REVIEW rv ON fe.establishment_id = rv.establishment_id
+            WHERE fe.establishment_id = %s
+            GROUP BY fe.establishment_id, cn.establishment_contact_number, sm.social_media_link
+            ORDER BY fe.establishment_id
+        """
+        cur.execute(query, (establishment_id,))
+        result = cur.fetchall()
+        display_results(result, 1)
+
+    def search_by_name():
+        establishment_name = get_input(establishment_name_entry, "string")
+        if not establishment_name:
+            messagebox.showerror("Invalid Name", "Please enter a valid establishment name.")
+            return
+
+        query = """
+            SELECT fe.establishment_id, fe.establishment_name, fe.date_established, fe.location, fe.opening_hour, fe.user_id, 
+                cn.establishment_contact_number, sm.social_media_link, AVG(rv.rating) as avg_rating
+            FROM FOOD_ESTABLISHMENT fe
+            LEFT JOIN FOOD_ESTABLISHMENT_CONTACT cn ON fe.establishment_id = cn.establishment_id
+            LEFT JOIN FOOD_ESTABLISHMENT_SOCIAL sm ON fe.establishment_id = sm.establishment_id
+            LEFT JOIN REVIEW rv ON fe.establishment_id = rv.establishment_id
+            WHERE fe.establishment_name LIKE %s
+            GROUP BY fe.establishment_id, cn.establishment_contact_number, sm.social_media_link
+            ORDER BY fe.establishment_id
+        """
+        cur.execute(query, (f'%{establishment_name}%',))
+        result = cur.fetchall()
+        display_results(result, 2)
+
+    search_establishment_window = ctk.CTkToplevel()
+    search_establishment_window.title("Search Establishment")
+    search_establishment_window.geometry("600x600")
+
+    search_option_label = ctk.CTkLabel(search_establishment_window, text="Search by [1] Establishment ID or [2] Establishment Name:")
+    search_option_label.pack(pady=5)
+    search_option_entry = ctk.CTkEntry(search_establishment_window)
+    search_option_entry.pack(pady=5)
+
+    submit_button = ctk.CTkButton(search_establishment_window, text="Submit Search Option", command=submit_search)
+    submit_button.pack(pady=20)
+
+    establishment_id_label = ctk.CTkLabel(search_establishment_window, text="Enter Establishment ID:")
+    establishment_id_entry = ctk.CTkEntry(search_establishment_window)
+    search_by_id_button = ctk.CTkButton(search_establishment_window, text="Search by ID", command=search_by_id)
+
+    establishment_name_label = ctk.CTkLabel(search_establishment_window, text="Enter partial or full Establishment Name:")
+    establishment_name_entry = ctk.CTkEntry(search_establishment_window)
+    search_by_name_button = ctk.CTkButton(search_establishment_window, text="Search by Name", command=search_by_name)
+
+    results_frame = ctk.CTkScrollableFrame(search_establishment_window, width=580, height=350)
+    results_frame.pack(pady=10, padx=10, fill="both", expand=True)
+
+'''
 # Search for an Establishment
 def search_establishment(cur):
     print("\n----------Search Establishment----------")
@@ -589,6 +723,8 @@ def search_establishment(cur):
            
     else:
         print("No establishment found matching the search criteria.")
+'''
+
 
 # Update an establishment
 def update_establishment(cur, user_id):
