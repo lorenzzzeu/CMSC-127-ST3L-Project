@@ -10,8 +10,58 @@ from establishment import establishment_menu
 from food_item import food_item_menu
 from review import review_menu
 
+import customtkinter as ctk
+from tkinter import messagebox
+
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("dark-blue")
+
+root = ctk.CTk()
+root.geometry("1000x600")
+root.title("CMSC 127 Project")
+
+# Connect to MariaDB Platform
+def login():
+    conn_bool = True
+    while conn_bool:
+        mariadb_password = mariadbpassword.get()
+    
+        try:
+            conn = mariadb.connect(
+                user = "root",
+                password = mariadb_password,
+                host = "localhost",
+                autocommit = True,
+            )
+            messagebox.showinfo("Login Success", "Welcome!")
+
+            if(conn):
+                conn_bool = False
+
+        except mariadb.Error as e:
+             messagebox.showerror("Login Failed", "Invalid username or password")
+
+
+
+frame = ctk.CTkFrame(master=root)
+frame.pack(pady=20, padx=60, fill="both", expand=True)
+
+label = ctk.CTkLabel(master=frame, text="Login")
+label.pack(pady=12, padx=10)
+
+mariadbpassword = ctk.CTkEntry(master=frame, placeholder_text="Password", show="*")
+mariadbpassword.pack(pady=12, padx=10)
+
+
+# Create and place the login button
+login_button = ctk.CTkButton(master=frame, text="Login", command=login)
+login_button.pack(pady=20)
+
+# Run the application
+root.mainloop()
 
 # Main Menu
+'''
 def MainMenu():
     print("\n----------Main Menu----------")
     print("[1] Food Establishment")
@@ -21,28 +71,10 @@ def MainMenu():
 
     choice = get_input("\nEnter your choice: ", "int", 0, 3, None, None)
     return choice
-
+'''
 
 #################################
 
-# Connect to MariaDB Platform
-conn_bool = True
-while conn_bool:
-    mariadb_password = input("Enter password: ")
-
-    try:
-        conn = mariadb.connect(
-            user = "root",
-            password = mariadb_password,
-            host = "localhost",
-            autocommit = True
-        )
-
-        if(conn):
-            conn_bool = False
-
-    except mariadb.Error as e:
-        print(f"Error connecting to MariaDB Platform: {e}")
 
 # Get Cursor for DB functions
 global cur 
@@ -152,6 +184,7 @@ cur.execute('''
     );
 ''')
 
+'''
 user_id = get_id("Enter user ID: ", "user", "fetch", None, None, cur)
 
 while True:
@@ -171,6 +204,7 @@ while True:
     elif choice == 0: 
         print("Goodbye!")
         break
+'''
 
 # import tkinter as tk
 # from tkinter import messagebox
