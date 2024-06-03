@@ -286,15 +286,15 @@ def display_all_food_items(cur):
 
 
         elif choice == 5:
-            establishment_id = get_id("Enter establishment ID: ", "establishment", "fetch", None, None, cur)
-            establishment_name_query = "SELECT establishment_name FROM FOOD_ESTABLISHMENT WHERE establishment_id = %s"
-            cur.execute(establishment_name_query, (establishment_id,))
-            establishment_name = cur.fetchone()[0]
+            # establishment_id = get_id("Enter establishment ID: ", "establishment", "fetch", None, None, cur)
+            # establishment_name_query = "SELECT establishment_name FROM FOOD_ESTABLISHMENT WHERE establishment_id = %s"
+            # cur.execute(establishment_name_query, (establishment_id,))
+            # establishment_name = cur.fetchone()[0]
 
             search_price_min = float(get_input("Enter minimum food item price: ", "int", 1, 999999, None, None))
             search_price_max = float(get_input("Enter maximum food item price: ", "int", 1, 999999, None, None))
 
-            query_price = "SELECT * FROM FOOD_ITEM WHERE price BETWEEN %s AND %s ORDER BY price ASC"
+            query_price = "SELECT food_id, food_name, price, type, fi.user_id, fi.establishment_id, establishment_name FROM FOOD_ITEM fi JOIN FOOD_ESTABLISHMENT fe ON fi.establishment_id = fe.establishment_id WHERE price BETWEEN %s AND %s ORDER BY price ASC"
             price_values = (search_price_min, search_price_max)
             cur.execute(query_price, price_values)
 
@@ -311,20 +311,20 @@ def display_all_food_items(cur):
                     print(f"Food Type: {food_item[3]}")
                     print(f"User ID: {food_item[4]}")
                     print(f"Establishment ID: {food_item[5]}")
-                    print(f"Establishment Name: {establishment_name}")
+                    print(f"Establishment Name: {food_item[6]}")
 
         elif choice == 6:
-            establishment_id = get_id("Enter establishment ID: ", "establishment", "fetch", None, None, cur)
-            establishment_name_query = "SELECT establishment_name FROM FOOD_ESTABLISHMENT WHERE establishment_id = %s"
-            cur.execute(establishment_name_query, (establishment_id,))
-            establishment_name = cur.fetchone()[0]
+            # establishment_id = get_id("Enter establishment ID: ", "establishment", "fetch", None, None, cur)
+            # establishment_name_query = "SELECT establishment_name FROM FOOD_ESTABLISHMENT WHERE establishment_id = %s"
+            # cur.execute(establishment_name_query, (establishment_id,))
+            # establishment_name = cur.fetchone()[0]
             
             food_type = get_input("Enter food type: ", "string", 1, 100, None, None)
             search_price_min = float(get_input("Enter minimum food item price: ", "int", 1, 999999, None, None))
             search_price_max = float(get_input("Enter maximum food item price: ", "int", 1, 999999, None, None))
 
             query = """
-                SELECT * FROM FOOD_ITEM 
+                SELECT food_id, food_name, price, type, fi.user_id, fi.establishment_id, establishment_name FROM FOOD_ITEM fi JOIN FOOD_ESTABLISHMENT fe ON fi.establishment_id = fe.establishment_id 
                 WHERE price BETWEEN %s AND %s AND type = %s 
                 ORDER BY price ASC
             """
@@ -344,7 +344,7 @@ def display_all_food_items(cur):
                     print(f"Food Type: {food_item[3]}")
                     print(f"User ID: {food_item[4]}")
                     print(f"Establishment ID: {food_item[5]}")
-                    print(f"Establishment Name: {establishment_name}")
+                    print(f"Establishment Name: {food_item[6]}")
 
         elif choice == 0:
             return
