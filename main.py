@@ -173,13 +173,6 @@ def open_user_id_window():
     submit_button = ctk.CTkButton(user_id_window, text="Submit", command=submit_user_id)
     submit_button.pack(pady=20)
 
-# Function to handle button actions in the main menu
-def handle_menu_selection(choice):
-    if choice == 2:
-        print("[2] Food Item")
-    elif choice == 3:
-        print("[3] Food Reviews")
-
 # Function to open the main menu window
 def open_main_menu():
     global main_menu_window
@@ -192,6 +185,8 @@ def open_main_menu():
 
     ctk.CTkLabel(root, text="Main Menu").pack(pady=10)
     ctk.CTkButton(root, text="Food Establishment", command=lambda: establishment_menu(cur, user_id, root)).pack(pady=5)
+    ctk.CTkButton(root, text="Food Item", command=lambda: food_item_menu(cur, user_id, root)).pack(pady=5)
+    ctk.CTkButton(root, text="Food Item", command=lambda: review_menu(cur, user_id, root)).pack(pady=5)
     ctk.CTkButton(root, text="Exit", command=root.quit).pack(pady=5)
     
 

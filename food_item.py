@@ -1,8 +1,18 @@
 from system import count, get_id, get_input, validate_id
+import customtkinter as ctk
+from tkinter import messagebox
 
 # Menu for Food Item
-def food_item_menu(cur, user_id):
+def food_item_menu(cur, user_id, parent):
     #ask muna kung sino yung user para malaman kung owner ba siya. Owner lang ang pwede mag add
+    food_item_menu_window = ctk.CTkToplevel(parent)
+    food_item_menu_window.title("establishment menu ")
+    food_item_menu_window.geometry("300x600")
+
+    def back_to_main_menu():
+        food_item_menu_window.destroy()
+
+    ctk.CTkLabel(food_item_menu_window, text="Food Item Menu").pack(pady=10)
     
     #check if user is an owner
     query = "SELECT is_owner, is_customer FROM User WHERE user_id = %s"

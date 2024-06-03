@@ -726,6 +726,8 @@ def search_establishment(cur):
 '''
 
 
+
+'''
 # Update an establishment
 def update_establishment(cur, user_id):
     print("\n----------Update Establishment----------")
@@ -920,7 +922,7 @@ def update_establishment(cur, user_id):
 
             break
     return
-        
+'''        
 
 # View all establishments
 def display_all_establishments(cur):

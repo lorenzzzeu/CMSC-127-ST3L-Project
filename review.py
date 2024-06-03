@@ -1,9 +1,20 @@
 from system import count, get_id, get_input, validate_id
 from datetime import datetime
+import customtkinter as ctk
+from tkinter import messagebox
 
 # Menu for reviews
-def review_menu(cur, user_id): 
+def review_menu(cur, user_id, parent): 
     print("\nFood Establishment and Food Review System")
+
+    review_menu_window = ctk.CTkToplevel(parent)
+    review_menu_window.title("establishment menu ")
+    review_menu_window.geometry("300x600")
+
+    def back_to_main_menu():
+        review_menu_window.destroy()
+
+    ctk.CTkLabel(review_menu_window, text="Review Menu").pack(pady=10)
 
     #check if user is an owner
     query = "SELECT is_owner, is_customer FROM User WHERE user_id = %s"
@@ -78,11 +89,11 @@ def add_review(cur, user_id):
     
     if choice == 1:
         cur.execute("SELECT establishment_id, establishment_name FROM FOOD_ESTABLISHMENT")
-        food_items = cur.fetchall()
+        reviews = cur.fetchall()
 
-        if food_items:
+        if reviews:
             print("\nList of Food Establishments")
-            for item in food_items:
+            for item in reviews:
                 print(f"Establishment ID: {item[0]}")
                 print(f"Establishment Name: {item[1]}\n")
         else:
@@ -98,12 +109,12 @@ def add_review(cur, user_id):
         classification = "Food Establishment"
 
     elif choice == 2:
-        cur.execute("SELECT food_id, food_name, establishment_name FROM FOOD_ITEM NATURAL JOIN FOOD_ESTABLISHMENT")
-        food_items = cur.fetchall()
+        cur.execute("SELECT food_id, food_name, establishment_name FROM review NATURAL JOIN FOOD_ESTABLISHMENT")
+        reviews = cur.fetchall()
 
-        if food_items:
+        if reviews:
             print("\nList of Food Items")
-            for item in food_items:
+            for item in reviews:
                 print(f"Food ID: {item[0]}")
                 print(f"Food Name: {item[1]}")
                 print(f"Establishment Name: {item[2]}\n")
