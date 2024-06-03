@@ -175,17 +175,10 @@ def open_user_id_window():
 
 # Function to handle button actions in the main menu
 def handle_menu_selection(choice):
-    if choice == 1:
-        print("\n-> Food Establishment")
-        #function for establishment
-        #establishment_menu(cur, user_id)
-    elif choice == 2:
+    if choice == 2:
         print("[2] Food Item")
     elif choice == 3:
         print("[3] Food Reviews")
-    elif choice == 0:
-        main_menu_window.destroy()
-        root.destroy()
 
 # Function to open the main menu window
 def open_main_menu():
@@ -194,15 +187,13 @@ def open_main_menu():
     main_menu_window.geometry("500x500")
     main_menu_window.title("Main Menu")
 
-    # Create and place the main menu buttons
-    button_food_establishment = ctk.CTkButton(main_menu_window, text="Food Establishment", command=lambda: handle_menu_selection(1))
-    button_food_establishment.pack(pady=5)
-    button_food_item = ctk.CTkButton(main_menu_window, text="Food Item", command=lambda: handle_menu_selection(2))
-    button_food_item.pack(pady=5)
-    button_food_reviews = ctk.CTkButton(main_menu_window, text="Food Reviews", command=lambda: handle_menu_selection(3))
-    button_food_reviews.pack(pady=5)
-    button_exit = ctk.CTkButton(main_menu_window, text="Exit", command=lambda: handle_menu_selection(0))
-    button_exit.pack(pady=20)
+    for widget in root.winfo_children():
+            widget.destroy()
+
+    ctk.CTkLabel(root, text="Main Menu").pack(pady=10)
+    ctk.CTkButton(root, text="Food Establishment", command=lambda: establishment_menu(cur, user_id, root)).pack(pady=5)
+    ctk.CTkButton(root, text="Exit", command=root.quit).pack(pady=5)
+    
 
 label = ctk.CTkLabel(root, text="Login")
 label.pack(pady=12, padx=10)

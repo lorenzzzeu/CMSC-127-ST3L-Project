@@ -1,19 +1,20 @@
 #create a try catch or validation to check if the inputted establishment_id is already in the database
 
 from system import count, get_id, get_input, validate_id
-#import customtkinter as ctk
-#from tkinter import messagebox
+import customtkinter as ctk
+from tkinter import messagebox
 #from main import open_main_menu
 
 # Menu For Food Establishment
-def establishment_menu(cur, user_id):
+def establishment_menu(cur, user_id, parent):
+    establishment_menu_window = ctk.CTkToplevel(parent)
+    establishment_menu_window.title("establishment menu ")
+    establishment_menu_window.geometry("300x600")
 
-    #global main_menu_window
-    #main_menu_window = ctk.CTkToplevel(root)
-    #main_menu_window.geometry("500x500")
-    #main_menu_window.title("Main Menu")
+    def back_to_main_menu():
+        establishment_menu_window.destroy()
 
-    print("\nFood Establishment and Food Review System")
+    ctk.CTkLabel(establishment_menu_window, text="Establishment Menu").pack(pady=10)
 
     #check if user is an owner
     query = "SELECT is_owner, is_customer FROM User WHERE user_id = %s"
@@ -22,35 +23,25 @@ def establishment_menu(cur, user_id):
     userType = cur.fetchone()
 
     if ((userType[0] == 1 and userType[1] == 1) or userType[0] == 1):
-        while True:
-            print(f"\n----------Establishment----------")
-            print("[1] Add an Establishment")
-            print("[2] Delete an Establishment")
-            print("[3] Search for an Establishment")
-            print("[4] Update an Establishment")
-            print("[5] Display all Establishments")
-            print("[0] Back to Menu")
-            print("-----------------------")
-            choice = get_input("\nEnter your choice: ", "int", 0, 5, None, None)
-
-            if choice == 1:
-                print("\n-> Adding an establishment")
-                add_establishment(cur, user_id)
-            elif choice == 2:
-                print("\n-> Deleting an establishment")
-                delete_establishment(cur, user_id)
-            elif choice == 3:
-                print("\n-> Searching for an establishment")
-                search_establishment(cur)
-            elif choice == 4:
-                print("\n-> Updating an establishment")
-                update_establishment(cur, user_id)
-            elif choice == 5:
-                print("\n-> Displaying all establishments")
-                display_all_establishments(cur)
-            elif choice == 0: break
-
-        return
+        print(f"\n----------Establishment----------")
+        print("[1] Add an Establishment")
+        print("[2] Delete an Establishment")
+        print("[3] Search for an Establishment")
+        print("[4] Update an Establishment")
+        print("[5] Display all Establishments")
+        print("[0] Back to Menu")
+        print("-----------------------")
+        add_establishment = ctk.CTkButton(establishment_menu_window, text="[1] Add an Establishment", command=lambda: handle_menu_establishment(cur, user_id, 1))
+        add_establishment.pack(pady=10)
+        delete_establishment = ctk.CTkButton(establishment_menu_window, text="[2] Delete an Establishment", command=lambda: handle_menu_establishment(cur, user_id, 2))
+        delete_establishment.pack(pady=10)
+        search_establishment = ctk.CTkButton(establishment_menu_window, text="[3] Search for an Establishment", command=lambda: handle_menu_establishment(cur, user_id, 3))
+        search_establishment.pack(pady=10)
+        update_establishment = ctk.CTkButton(establishment_menu_window, text="[4] Update an Establishment", command=lambda: handle_menu_establishment(cur, user_id, 4))
+        update_establishment.pack(pady=10)
+        display_all_establishment = ctk.CTkButton(establishment_menu_window, text="[5] Display all Establishments", command=lambda: handle_menu_establishment(cur, user_id, 5))
+        display_all_establishment.pack(pady=10)
+        ctk.CTkButton(establishment_menu_window, text="Back to Main Menu", command=back_to_main_menu).pack(pady=5)
 
     else:
         while True:
@@ -70,9 +61,210 @@ def establishment_menu(cur, user_id):
             elif choice == 0: break
 
         return
-    
+
+
+def handle_menu_establishment(cur, user_id, choice):
+    if choice == 1:
+        print("\n-> Adding an establishment")
+        add_establishment(cur, user_id)
+    elif choice == 2:
+        print("\n-> Deleting an establishment")
+        delete_establishment(cur, user_id)
+    elif choice == 3:
+        print("\n-> Searching for an establishment")
+        search_establishment(cur)
+    elif choice == 4:
+        print("\n-> Updating an establishment")
+        update_establishment(cur, user_id)
+    elif choice == 5:
+        print("\n-> Displaying all establishments")
+        display_all_establishments(cur)
+    #elif choice == 0: 
+
 
 # Add an Establishment
+def add_establishment(cur, user_id):
+    add_establishment_window = ctk.CTkToplevel()
+    add_establishment_window.title("add establishment window")
+    add_establishment_window.geometry("300x200")
+    print("\n----------Add Establishment----------")
+
+    add_establishment_window = ctk.CTkToplevel()
+    add_establishment_window.title("Add Establishment Window")
+    add_establishment_window.geometry("400x600")
+
+    scrollable_frame = ctk.CTkScrollableFrame(add_establishment_window, width=380, height=580)
+    scrollable_frame.pack(pady=10, padx=10, fill="both", expand=True)
+
+    establishment_name_label = ctk.CTkLabel(scrollable_frame, text="Enter Establishment Name:")
+    establishment_name_label.pack(pady=5)
+    establishment_name_entry = ctk.CTkEntry(scrollable_frame)
+    establishment_name_entry.pack(pady=5)
+
+    date_established_label = ctk.CTkLabel(scrollable_frame, text="Enter Date Established (YYYY-MM-DD):")
+    date_established_label.pack(pady=5)
+    date_established_entry = ctk.CTkEntry(scrollable_frame)
+    date_established_entry.pack(pady=5)
+
+    location_label = ctk.CTkLabel(scrollable_frame, text="Enter Location:")
+    location_label.pack(pady=5)
+    location_entry = ctk.CTkEntry(scrollable_frame)
+    location_entry.pack(pady=5)
+
+    opening_hour_label = ctk.CTkLabel(scrollable_frame, text="Enter Opening Hour (HH:MM:SS):")
+    opening_hour_label.pack(pady=5)
+    opening_hour_entry = ctk.CTkEntry(scrollable_frame)
+    opening_hour_entry.pack(pady=5)
+
+    contact_choice_label = ctk.CTkLabel(scrollable_frame, text="Do you want to add your contact number? (Yes [1], No [2]):")
+    contact_choice_label.pack(pady=5)
+    contact_choice_entry = ctk.CTkEntry(scrollable_frame)
+    contact_choice_entry.pack(pady=5)
+
+    contact_label = ctk.CTkLabel(scrollable_frame, text="Enter Contact Number (09XXXXXXXXX):")
+    contact_label.pack(pady=5)
+    contact_entry = ctk.CTkEntry(scrollable_frame)
+    contact_entry.pack(pady=5)
+
+    another_contact_choice_label = ctk.CTkLabel(scrollable_frame, text="Do you want to add another contact number? (Yes [1], No [2]):")
+    another_contact_choice_label.pack(pady=5)
+    another_contact_choice_entry = ctk.CTkEntry(scrollable_frame)
+    another_contact_choice_entry.pack(pady=5)
+
+    social_choice_label = ctk.CTkLabel(scrollable_frame, text="Do you want to add your social media link? (Yes [1], No [2]):")
+    social_choice_label.pack(pady=5)
+    social_choice_entry = ctk.CTkEntry(scrollable_frame)
+    social_choice_entry.pack(pady=5)
+
+    social_label = ctk.CTkLabel(scrollable_frame, text="Enter Social Media Link:")
+    social_label.pack(pady=5)
+    social_entry = ctk.CTkEntry(scrollable_frame)
+    social_entry.pack(pady=5)
+
+    another_social_choice_label = ctk.CTkLabel(scrollable_frame, text="Do you want to add another social media link? (Yes [1], No [2]):")
+    another_social_choice_label.pack(pady=5)
+    another_social_choice_entry = ctk.CTkEntry(scrollable_frame)
+    another_social_choice_entry.pack(pady=5)
+
+    def submit_establishment():
+        establishment_name = get_input("Enter Establishment Name: ", "string", 1, 75, None, None)
+        date_established = get_input("Enter Date Established (YYYY-MM-DD): ", "date", 1, 75, None, None)
+        location = get_input("Enter Location: ", "string", 1, 75, None, None)
+        opening_hour = get_input("Enter Opening Hour (HH:MM:SS): ", "hour", 1, 8, None, None)
+
+        contact = None
+        social = None
+
+        cur.execute("SELECT MAX(establishment_id) FROM FOOD_ESTABLISHMENT")
+        new_increment = cur.fetchone()[0] or 0
+
+        alter_query = "ALTER TABLE FOOD_ESTABLISHMENT AUTO_INCREMENT = %s"
+        cur.execute(alter_query, (new_increment,))
+
+        query = "INSERT INTO FOOD_ESTABLISHMENT (establishment_name, date_established, location, opening_hour, user_id) VALUES (%s, %s, %s, %s, %s)"
+        values = (establishment_name, date_established, location, opening_hour, user_id)
+        cur.execute(query, values)
+        establishment_id = cur.lastrowid
+
+        add_contact_window(establishment_id)
+        add_social_window(establishment_id)
+
+        messagebox.showinfo("Success", "Establishment added successfully.")
+
+    def add_contact_window(establishment_id):
+        contact_window = ctk.CTkToplevel(add_establishment_window)
+        contact_window.title("Add Contact Number")
+        contact_window.geometry("400x300")
+
+        contact_choice_label = ctk.CTkLabel(contact_window, text="Do you want to add your contact number? (Yes [1], No [2]):")
+        contact_choice_label.pack(pady=5)
+        contact_choice_entry = ctk.CTkEntry(contact_window)
+        contact_choice_entry.pack(pady=5)
+
+        contact_label = ctk.CTkLabel(contact_window, text="Enter Contact Number (09XXXXXXXXX):")
+        contact_label.pack(pady=5)
+        contact_entry = ctk.CTkEntry(contact_window)
+        contact_entry.pack(pady=5)
+
+        another_contact_choice_label = ctk.CTkLabel(contact_window, text="Do you want to add another contact number? (Yes [1], No [2]):")
+        another_contact_choice_label.pack(pady=5)
+        another_contact_choice_entry = ctk.CTkEntry(contact_window)
+        another_contact_choice_entry.pack(pady=5)
+
+        def submit_contact():
+            contact_choice = get_input(contact_choice_entry, "int")
+            if contact_choice == 1:
+                while True:
+                    contact = get_input(contact_entry, "contact")
+
+                    cur.execute("SELECT MAX(establishment_contact_id) FROM FOOD_ESTABLISHMENT_CONTACT")
+                    new_contact_increment = cur.fetchone()[0] or 0
+
+                    alter_query = "ALTER TABLE FOOD_ESTABLISHMENT_CONTACT AUTO_INCREMENT = %s"
+                    cur.execute(alter_query, (new_contact_increment,))
+
+                    query_for_contact = "INSERT INTO FOOD_ESTABLISHMENT_CONTACT (establishment_id, establishment_contact_number) VALUES (%s, %s)"
+                    values_for_contact = (establishment_id, contact)
+                    cur.execute(query_for_contact, values_for_contact)
+
+                    another_choice = get_input(another_contact_choice_entry, "int")
+                    if another_choice == 2:
+                        break
+
+            contact_window.destroy()
+
+        submit_button = ctk.CTkButton(contact_window, text="Submit Contact", command=submit_contact)
+        submit_button.pack(pady=20)
+
+    def add_social_window(establishment_id):
+        social_window = ctk.CTkToplevel(add_establishment_window)
+        social_window.title("Add Social Media Link")
+        social_window.geometry("400x300")
+
+        social_choice_label = ctk.CTkLabel(social_window, text="Do you want to add your social media link? (Yes [1], No [2]):")
+        social_choice_label.pack(pady=5)
+        social_choice_entry = ctk.CTkEntry(social_window)
+        social_choice_entry.pack(pady=5)
+
+        social_label = ctk.CTkLabel(social_window, text="Enter Social Media Link:")
+        social_label.pack(pady=5)
+        social_entry = ctk.CTkEntry(social_window)
+        social_entry.pack(pady=5)
+
+        another_social_choice_label = ctk.CTkLabel(social_window, text="Do you want to add another social media link? (Yes [1], No [2]):")
+        another_social_choice_label.pack(pady=5)
+        another_social_choice_entry = ctk.CTkEntry(social_window)
+        another_social_choice_entry.pack(pady=5)
+
+        def submit_social():
+            social_choice = get_input(social_choice_entry, "int")
+            if social_choice == 1:
+                while True:
+                    social = get_input(social_entry, "string")
+
+                    cur.execute("SELECT MAX(establishment_social_id) FROM FOOD_ESTABLISHMENT_SOCIAL")
+                    new_social_increment = cur.fetchone()[0] or 0
+
+                    alter_query = "ALTER TABLE FOOD_ESTABLISHMENT_SOCIAL AUTO_INCREMENT = %s"
+                    cur.execute(alter_query, (new_social_increment,))
+
+                    query_for_social = "INSERT INTO FOOD_ESTABLISHMENT_SOCIAL (establishment_id, social_media_link) VALUES (%s, %s)"
+                    values_for_social = (establishment_id, social)
+                    cur.execute(query_for_social, values_for_social)
+
+                    another_choice = get_input(another_social_choice_entry, "int")
+                    if another_choice == 2:
+                        break
+
+            social_window.destroy()
+
+        submit_button = ctk.CTkButton(social_window, text="Submit Social Media Link", command=submit_social)
+        submit_button.pack(pady=20)
+
+    submit_button = ctk.CTkButton(scrollable_frame, text="Submit Establishment", command=submit_establishment)
+    submit_button.pack(pady=20)
+
+'''
 def add_establishment(cur, user_id):
     print("\n----------Add Establishment----------")
 
@@ -101,66 +293,138 @@ def add_establishment(cur, user_id):
 
     if (contact_choice == 1):
         while True:
-            contact = get_input("Enter Contact Number (09XXXXXXXXX): ", "contact", 1, 75, None, None)
+        contact = get_input("Enter Contact Number (09XXXXXXXXX): ", "contact", 1, 75, None, None)
+        cur.execute("SELECT MAX(establishment_id) FROM FOOD_ESTABLISHMENT")
+        new_increment = cur.fetchone()[0]
 
-            cur.execute("SELECT MAX(establishment_contact_id) FROM FOOD_ESTABLISHMENT_CONTACT")
-            new_contact_increment = cur.fetchone()[0]
+        alter_query = "ALTER TABLE FOOD_ESTABLISHMENT AUTO_INCREMENT = %s"
+        cur.execute(alter_query, (new_increment,))
 
-            alter_query = "ALTER TABLE FOOD_ESTABLISHMENT_CONTACT AUTO_INCREMENT = %s"
-            cur.execute(alter_query, (new_contact_increment,))
+        # Insert into FOOD_ESTABLISHMENT table
+        query = "INSERT INTO FOOD_ESTABLISHMENT (establishment_name, date_established, location, opening_hour, user_id) VALUES (%s, %s, %s, %s, %s)"
+        values = (establishment_name, date_established, location, opening_hour, user_id)
+        cur.execute(query, values)
+        establishment_id = cur.lastrowid
 
-            query_for_contact = "INSERT INTO FOOD_ESTABLISHMENT_CONTACT (establishment_id, establishment_contact_number) VALUES (%s, %s)"
-            values_for_contact = (establishment_id, contact)
-            cur.execute(query_for_contact, values_for_contact)
+        # For Contact Numbers
+        contact_choice = get_input("Do you want to add your contact number? (Yes [1], No [2]): ", "int", 1, 2, None, None)
 
-            another_choice = get_input("Do you want to add another contact number? (Yes [1], No [2]): ", "int", 1, 2, None, None)
+        if (contact_choice == 1):
+            while True:
+                contact = get_input("Enter Contact Number (09XXXXXXXXX): ", "contact", 1, 75, None, None)
 
-            if (another_choice == 2): break
+                cur.execute("SELECT MAX(establishment_contact_id) FROM FOOD_ESTABLISHMENT_CONTACT")
+                new_contact_increment = cur.fetchone()[0]
 
-    # For Social Media Links
-    social_choice = get_input("Do you want to add your social media link? (Yes [1], No [2]): ", "int", 1, 2, None, None)
+                alter_query = "ALTER TABLE FOOD_ESTABLISHMENT_CONTACT AUTO_INCREMENT = %s"
+                cur.execute(alter_query, (new_contact_increment,))
 
-    if (social_choice == 1):
-        while True:
-            social = get_input("Enter Social Media Link: ", "string", 1, 200, None, None)
+                query_for_contact = "INSERT INTO FOOD_ESTABLISHMENT_CONTACT (establishment_id, establishment_contact_number) VALUES (%s, %s)"
+                values_for_contact = (establishment_id, contact)
+                cur.execute(query_for_contact, values_for_contact)
 
-            cur.execute("SELECT MAX(establishment_social_id) FROM FOOD_ESTABLISHMENT_SOCIAL")
-            new_social_increment = cur.fetchone()[0]
+                another_choice = get_input("Do you want to add another contact number? (Yes [1], No [2]): ", "int", 1, 2, None, None)
 
-            alter_query = "ALTER TABLE FOOD_ESTABLISHMENT_SOCIAL AUTO_INCREMENT = %s"
-            cur.execute(alter_query, (new_social_increment,))
+                if (another_choice == 2): break
 
-            query_for_social = "INSERT INTO FOOD_ESTABLISHMENT_SOCIAL (establishment_id, social_media_link) VALUES (%s, %s)"
-            values_for_social = (establishment_id, social)
-            cur.execute(query_for_social, values_for_social)
+        # For Social Media Links
+        social_choice = get_input("Do you want to add your social media link? (Yes [1], No [2]): ", "int", 1, 2, None, None)
 
-            another_choice = get_input("Do you want to add another social media link? (Yes [1], No [2]): ", "int", 1, 2, None, None)
+        if (social_choice == 1):
+            while True:
+                social = get_input("Enter Social Media Link: ", "string", 1, 200, None, None)
 
-            if (another_choice == 2): break
+                cur.execute("SELECT MAX(establishment_social_id) FROM FOOD_ESTABLISHMENT_SOCIAL")
+                new_social_increment = cur.fetchone()[0]
 
-    cur.execute("SELECT MAX(establishment_contact_id) FROM FOOD_ESTABLISHMENT_CONTACT")
-    new_contact_increment = cur.fetchone()[0]
+                alter_query = "ALTER TABLE FOOD_ESTABLISHMENT_SOCIAL AUTO_INCREMENT = %s"
+                cur.execute(alter_query, (new_social_increment,))
 
-    alter_query = "ALTER TABLE FOOD_ESTABLISHMENT_CONTACT AUTO_INCREMENT = %s"
-    cur.execute(alter_query, (new_contact_increment,))
+                query_for_social = "INSERT INTO FOOD_ESTABLISHMENT_SOCIAL (establishment_id, social_media_link) VALUES (%s, %s)"
+                values_for_social = (establishment_id, social)
+                cur.execute(query_for_social, values_for_social)
 
-    # query_for_contact = "INSERT INTO FOOD_ESTABLISHMENT_CONTACT (establishment_id, establishment_contact_number) VALUES (%s, %s)"
-    # values_for_contact = (establishment_id, contact)
-    # cur.execute(query_for_contact, values_for_contact)
+                another_choice = get_input("Do you want to add another social media link? (Yes [1], No [2]): ", "int", 1, 2, None, None)
 
-    cur.execute("SELECT MAX(establishment_social_id) FROM FOOD_ESTABLISHMENT_SOCIAL")
-    new_social_increment = cur.fetchone()[0]
+                if (another_choice == 2): break
 
-    alter_query = "ALTER TABLE FOOD_ESTABLISHMENT_SOCIAL AUTO_INCREMENT = %s"
-    cur.execute(alter_query, (new_social_increment,))
+        cur.execute("SELECT MAX(establishment_contact_id) FROM FOOD_ESTABLISHMENT_CONTACT")
+        new_contact_increment = cur.fetchone()[0]
 
-    # query_for_social = "INSERT INTO FOOD_ESTABLISHMENT_SOCIAL (establishment_id, social_media_link) VALUES (%s, %s)"
-    # values_for_social = (establishment_id, social)
-    # cur.execute(query_for_social, values_for_social)
+        alter_query = "ALTER TABLE FOOD_ESTABLISHMENT_CONTACT AUTO_INCREMENT = %s"
+        cur.execute(alter_query, (new_contact_increment,))
+
+        # query_for_contact = "INSERT INTO FOOD_ESTABLISHMENT_CONTACT (establishment_id, establishment_contact_number) VALUES (%s, %s)"
+        # values_for_contact = (establishment_id, contact)
+        # cur.execute(query_for_contact, values_for_contact)
+
+        cur.execute("SELECT MAX(establishment_social_id) FROM FOOD_ESTABLISHMENT_SOCIAL")
+        new_social_increment = cur.fetchone()[0]
+
+        alter_query = "ALTER TABLE FOOD_ESTABLISHMENT_SOCIAL AUTO_INCREMENT = %s"
+        cur.execute(alter_query, (new_social_increment,))
+
+        # query_for_social = "INSERT INTO FOOD_ESTABLISHMENT_SOCIAL (establishment_id, social_media_link) VALUES (%s, %s)"
+        # values_for_social = (establishment_id, social)
+        # cur.execute(query_for_social, values_for_social)
 
 
-    print("\nEstablishment added successfully.")
+        print("\nEstablishment added successfully.")
+    '''
 
+def delete_establishment(cur, user_id):
+    def get_id(entry):
+        value = entry.get()
+        return int(value) if value.isdigit() else None
+
+    delete_establishment_window = ctk.CTkToplevel()
+    delete_establishment_window.title("Delete Establishment")
+    delete_establishment_window.geometry("400x300")
+
+    establishment_id_label = ctk.CTkLabel(delete_establishment_window, text="Enter Establishment ID:")
+    establishment_id_label.pack(pady=5)
+    establishment_id_entry = ctk.CTkEntry(delete_establishment_window)
+    establishment_id_entry.pack(pady=5)
+
+    def submit_delete():
+        establishment_id = get_id(establishment_id_entry)
+        if establishment_id is None:
+            messagebox.showerror("Invalid ID", "Please enter a valid establishment ID.")
+            return
+
+        query = "SELECT user_id FROM FOOD_ESTABLISHMENT WHERE establishment_id = %s"
+        cur.execute(query, (establishment_id,))
+
+        owner_of_food_establishment = cur.fetchone()
+        if owner_of_food_establishment is None:
+            messagebox.showerror("Invalid ID", "No establishment found with this ID.")
+            return
+
+        owner_of_food_establishment = owner_of_food_establishment[0]
+        
+        if user_id != owner_of_food_establishment:
+            messagebox.showerror("Permission Denied", "You can't delete this food establishment added by another user.")
+            return
+
+        # Delete contact from food_establishment_contact
+        query_contact_delete = "DELETE FROM FOOD_ESTABLISHMENT_CONTACT WHERE establishment_id = %s"
+        cur.execute(query_contact_delete, (establishment_id,))
+
+        # Delete social from food_establishment_social
+        query_social_delete = "DELETE FROM FOOD_ESTABLISHMENT_SOCIAL WHERE establishment_id = %s"
+        cur.execute(query_social_delete, (establishment_id,))
+
+        # Delete establishment from food_establishment
+        query = "DELETE FROM FOOD_ESTABLISHMENT WHERE establishment_id = %s"
+        cur.execute(query, (establishment_id,))
+
+        messagebox.showinfo("Success", "Successfully deleted food establishment")
+        delete_establishment_window.destroy()
+
+    submit_button = ctk.CTkButton(delete_establishment_window, text="Delete Establishment", command=submit_delete)
+    submit_button.pack(pady=20)
+
+'''
 # Delete an Establishment
 def delete_establishment(cur, user_id):
     print("\n----------Delete Establishment----------")
@@ -194,7 +458,7 @@ def delete_establishment(cur, user_id):
         break
 
     return
-
+'''
 # Search for an Establishment
 def search_establishment(cur):
     print("\n----------Search Establishment----------")
