@@ -38,4 +38,4 @@ This information system allows users to record, in electronic form, data on food
 ## Technologies Used
 - MariaDB
 - Python3
-- Pip
+- Pip/Tk*
